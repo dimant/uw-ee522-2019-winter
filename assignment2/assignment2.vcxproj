@@ -57,8 +57,9 @@
       <LibraryDependencies>wiringPi;bcm2835;pigpio</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
-      <Command>gpio export 17 out</Command>
-      <Message>export pin 17 using the gpio utility so that we can execute the blink program without sudo</Message>
+      <Command>sudo sh $(RemoteOutDir)/make-self.sh $(RemoteTargetPath)</Command>
+      <Message>
+      </Message>
     </RemotePostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -66,8 +67,9 @@
       <LibraryDependencies>wiringPi;bcm2835;pigpio</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
-      <Command>gpio export 17 out</Command>
-      <Message>export pin 17 using the gpio utility so that we can execute the blink program without sudo</Message>
+      <Command>sudo sh $(RemoteOutDir)/make-self.sh $(RemoteTargetPath)</Command>
+      <Message>
+      </Message>
     </RemotePostBuildEvent>
     <ClCompile>
       <AdditionalOptions>-std=c11 -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
@@ -88,12 +90,24 @@
     <ClCompile Include="bcm2835-experiments.c" />
     <ClCompile Include="export-pin.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="pigpio-experiments.c" />
     <ClCompile Include="wiringpi-experiments.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bcm2835-experiments.h" />
     <ClInclude Include="export-pin.h" />
+    <ClInclude Include="pigpio-experiments.h" />
     <ClInclude Include="wiringpi-experiments.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="make-self.sh">
+      <RemoteFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">make-self.sh</RemoteFile>
+      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</RemoteCopyFile>
+      <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</RemoteCopyToOutputDir>
+      <RemoteFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">make-self.sh</RemoteFile>
+      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyFile>
+      <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyToOutputDir>
+    </None>
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>

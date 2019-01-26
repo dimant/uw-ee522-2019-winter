@@ -3,7 +3,7 @@
 
 #include "wiringpi-experiments.h"
 
-void wpie_blinkLED(int pin)
+void wpie_blinkLED(unsigned char pin)
 {
 	int result = wiringPiSetupSys();
 	assert(result == 0);

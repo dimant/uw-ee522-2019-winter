@@ -4,12 +4,13 @@
 
 #include "wiringpi-experiments.h"
 #include "bcm2835-experiments.h"
+#include "pigpio-experiments.h"
 
 int main(void)
 {
 	export_pin(19, OUTPUT);
 
-	bcme_blinkLED(19);
+	pgpe_blinkLED(19);
 
 	return 0;
 }
