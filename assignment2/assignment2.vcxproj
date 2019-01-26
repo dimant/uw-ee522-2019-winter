@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2fa60da3-c3f5-4626-87c2-12a8371298dd}</ProjectGuid>
+    <ProjectGuid>{d2d0efb8-af94-4d59-ba84-cb6f78d73192}</ProjectGuid>
     <Keyword>Linux</Keyword>
-    <RootNamespace>assignment1</RootNamespace>
+    <RootNamespace>assignment2</RootNamespace>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <ApplicationType>Linux</ApplicationType>
     <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
@@ -54,7 +54,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
-      <LibraryDependencies>wiringPi</LibraryDependencies>
+      <LibraryDependencies>wiringPi;bcm2835;pigpio</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>gpio export 17 out</Command>
@@ -63,29 +63,53 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <Link>
-      <LibraryDependencies>wiringPi</LibraryDependencies>
+      <LibraryDependencies>wiringPi;bcm2835;pigpio</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>gpio export 17 out</Command>
       <Message>export pin 17 using the gpio utility so that we can execute the blink program without sudo</Message>
     </RemotePostBuildEvent>
     <ClCompile>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-std=c11 -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
+      <CLanguageStandard>Default</CLanguageStandard>
       <CppLanguageStandard>Default</CppLanguageStandard>
-      <AdditionalOptions>-std=c11 -pedantic -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings %(AdditionalOptions)</AdditionalOptions>
+      <CppAdditionalWarning>switch;empty-body;conversion;return-type;parentheses;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <StrictAliasing>true</StrictAliasing>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <RemotePreBuildEvent>
+      <Command>splint -preproc -formatconst *.c</Command>
+    </RemotePreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bcm2835-experiments.c" />
+    <ClCompile Include="export-pin.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="wiringpi-experiments.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bcm2835-experiments.h" />
+    <ClInclude Include="export-pin.h" />
+    <ClInclude Include="wiringpi-experiments.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-std=c11 -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
+      <CLanguageStandard>Default</CLanguageStandard>
       <CppLanguageStandard>Default</CppLanguageStandard>
-      <AdditionalOptions>-std=c11 -pedantic -W -Wconversion -Wshadow -Wcast-qual -Wwrite-strings %(AdditionalOptions)</AdditionalOptions>
+      <CppAdditionalWarning>switch;empty-body;conversion;return-type;parentheses;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <StrictAliasing>true</StrictAliasing>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <RemotePreBuildEvent>
+      <Command>splint -preproc -formatconst *.c</Command>
+    </RemotePreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
