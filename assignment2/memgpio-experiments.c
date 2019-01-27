@@ -9,15 +9,12 @@
 
 #include "memgpio-experiments.h"
 
-/*	cat /proc/iomem ouput:
-    00000000-00000000 : /soc/gpio@7e200000 
-*/
+/*  From Exploring Raspberry Pi Chapter 6 */
 #define GPIO_BASE 0x3F200000
 #define GPIO_OFFSET_PTR(base, x) *(base + (x / sizeof(uint32_t)))
 
-/*	from bcm2835 peripherals doc
-    https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
-*/
+/*  from bcm2835 peripherals doc
+    https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf */
 #define GPSET0 0x1c
 #define GPSET1 0x20
 #define GPCLR0 0x28
@@ -25,13 +22,13 @@
 #define GPLVL0 0x34
 #define GPLVL1 0x38
 
-static volatile uint32_t *gpio;
-static int fd;
-
 #define FAIL_CODE 1
 
 #define IF_THEN_FAIL(expr, code, message) { if(expr) { fprintf(stderr, message); return code; } }
 #define IF_THEN_FAIL_FMT(expr, code, message, ...) { if(expr) { fprintf(stderr, message, ##__VA_ARGS__); return code; } }
+
+static volatile uint32_t *gpio;
+static int fd;
 
 int mgp_init()
 {
