@@ -67,9 +67,9 @@ int mgp_blinkLED(unsigned char pin)
     int result = mgp_init();
     IF_THEN_FAIL(0 != result, FAIL_CODE, "Failed initializing memgpio library.");
 
-    GPIO_OFFSET_PTR(gpio, GPSET0) = 1 << 19;
+    GPIO_OFFSET_PTR(gpio, GPSET0) = 1 << pin;
     for (int x = 0; x < 500; x++) {}  // blocking delay hack using a simple loop
-    GPIO_OFFSET_PTR(gpio, GPCLR0) = 1 << 19;
+    GPIO_OFFSET_PTR(gpio, GPCLR0) = 1 << pin;
 
     mgp_terminate();
     return 0;
