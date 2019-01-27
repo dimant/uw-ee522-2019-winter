@@ -9,12 +9,15 @@
 
 #include "memgpio-experiments.h"
 
-/*  From Exploring Raspberry Pi Chapter 6 */
+/*	cat /proc/iomem ouput:
+    00000000-00000000 : /soc/gpio@7e200000 
+*/
 #define GPIO_BASE 0x3F200000
 #define GPIO_OFFSET_PTR(base, x) *(base + (x / sizeof(uint32_t)))
 
-/*  from bcm2835 peripherals doc
-    https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf */
+/*	from bcm2835 peripherals doc
+    https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+*/
 #define GPSET0 0x1c
 #define GPSET1 0x20
 #define GPCLR0 0x28
@@ -22,13 +25,22 @@
 #define GPLVL0 0x34
 #define GPLVL1 0x38
 
+#define MODE_INPUT  0
+#define MODE_OUTPUT 1
+#define MODE_ALT0   4
+#define MODE_ALT1   5
+#define MODE_ALT2   6
+#define MODE_ALT3   7
+#define MODE_ALT4   3
+#define MODE_ALT5   2
+
+static volatile uint32_t *gpio;
+static int fd;
+
 #define FAIL_CODE 1
 
 #define IF_THEN_FAIL(expr, code, message) { if(expr) { fprintf(stderr, message); return code; } }
 #define IF_THEN_FAIL_FMT(expr, code, message, ...) { if(expr) { fprintf(stderr, message, ##__VA_ARGS__); return code; } }
-
-static volatile uint32_t *gpio;
-static int fd;
 
 int mgp_init()
 {
@@ -59,7 +71,21 @@ void mgp_terminate()
     close(fd);
 }
 
-int mgp_blinkLED(unsigned char pin)
+void mgp_setMode(char pin, char mode)
+{
+	// per the doc (page 91, Table 6.2 and following), pins are occupying registries of 32 bit
+	// 10 pins per register, 3 bits per pin, remaining 2 bits are reserved
+	// https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+	char reg = pin / 10;
+	char shift = (pin % 10) * 3;
+ 	
+	// we first clear the 3 bits corresponding to the pin
+	// then we apply the requested mode
+	// finally we copy back to the register
+	gpio[reg] = (gpio[reg] & ~(7<<shift)) | (mode<<shift);
+}
+
+int mgp_blinkLED(char pin)
 {
     int result = mgp_init();
     IF_THEN_FAIL(0 != result, FAIL_CODE, "Failed initializing memgpio library.");
