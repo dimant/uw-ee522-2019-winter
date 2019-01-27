@@ -77,25 +77,30 @@
       <CppLanguageStandard>Default</CppLanguageStandard>
       <CppAdditionalWarning>switch;empty-body;conversion;return-type;parentheses;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <StrictAliasing>true</StrictAliasing>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <Verbose>true</Verbose>
     </ClCompile>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
     <RemotePreBuildEvent>
-      <Command>splint -preproc -formatconst *.c</Command>
+      <Command>
+      </Command>
     </RemotePreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bcm2835-experiments.c" />
     <ClCompile Include="export-pin.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="memgpio-experiments.c" />
     <ClCompile Include="pigpio-experiments.c" />
     <ClCompile Include="wiringpi-experiments.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bcm2835-experiments.h" />
     <ClInclude Include="export-pin.h" />
+    <ClInclude Include="memgpio-experiments.h" />
     <ClInclude Include="pigpio-experiments.h" />
     <ClInclude Include="wiringpi-experiments.h" />
   </ItemGroup>
@@ -116,13 +121,16 @@
       <CppLanguageStandard>Default</CppLanguageStandard>
       <CppAdditionalWarning>switch;empty-body;conversion;return-type;parentheses;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <StrictAliasing>true</StrictAliasing>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <Verbose>true</Verbose>
     </ClCompile>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
     <RemotePreBuildEvent>
-      <Command>splint -preproc -formatconst *.c</Command>
+      <Command>
+      </Command>
     </RemotePreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

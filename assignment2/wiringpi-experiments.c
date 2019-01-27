@@ -5,11 +5,11 @@
 
 void wpie_blinkLED(unsigned char pin)
 {
-	int result = wiringPiSetupSys();
-	assert(result == 0);
+    int result = wiringPiSetupSys();
+    assert(result == 0);
 
-	pinMode(pin, OUTPUT);
-	digitalWrite(pin, HIGH);
-	delay(1000);
-	digitalWrite(pin, LOW);
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, HIGH);
+    delay(1000);
+    digitalWrite(pin, LOW);
 }

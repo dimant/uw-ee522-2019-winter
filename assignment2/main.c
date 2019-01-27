@@ -5,12 +5,9 @@
 #include "wiringpi-experiments.h"
 #include "bcm2835-experiments.h"
 #include "pigpio-experiments.h"
+#include "memgpio-experiments.h"
 
 int main(void)
 {
-	export_pin(19, OUTPUT);
-
-	pgpe_blinkLED(19);
-
-	return 0;
+    return mgp_blinkLED(19);
 }
