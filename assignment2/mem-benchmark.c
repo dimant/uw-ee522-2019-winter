@@ -32,11 +32,8 @@ void mem_benchmark()
     for (i = 0; i < 5; i++)
     {
         double* byte_copy_result = byte_copy_benchmark(iterations);
-				printf(".");
         double* hword_copy_result = hword_copy_benchmark(iterations);
-				printf(".");
         double* word_copy_result = word_copy_benchmark(iterations);
-				printf(".\n");
 
         for (cur_size = 0; cur_size < SIZES; cur_size++)
         {
@@ -88,7 +85,6 @@ double* byte_copy_benchmark(long iterations)
 
             my_clock_gettime(CLOCK_REALTIME, &gettime_now);
             avg += (double) (gettime_now.tv_nsec - start) / (double)operations;
-						printf(".");
         }
 
         avg /= (double)iterations;
@@ -138,7 +134,6 @@ double* hword_copy_benchmark(long iterations)
 
             my_clock_gettime(CLOCK_REALTIME, &gettime_now);
             avg += (double)(gettime_now.tv_nsec - start) / (double)operations;
-						printf(".");
         }
         avg /= (double)iterations;
         result[cur_size] = avg;
@@ -187,7 +182,6 @@ double* word_copy_benchmark(long iterations)
 
             my_clock_gettime(CLOCK_REALTIME, &gettime_now);
             avg += (double)(gettime_now.tv_nsec - start) / (double)operations;
-						printf(".");
         }
         avg /= (double)iterations;
         result[cur_size] = avg;
