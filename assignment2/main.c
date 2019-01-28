@@ -8,6 +8,7 @@
 #include "pigpio-experiments.h"
 #include "memgpio-experiments.h"
 #include "arith-benchmarks.h"
+#include "mem-benchmark.h"
 
 int main(void)
 {
