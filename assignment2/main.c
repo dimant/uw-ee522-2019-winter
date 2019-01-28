@@ -11,5 +11,5 @@
 
 int main(void)
 {
-    
+    mem_benchmark();
 }

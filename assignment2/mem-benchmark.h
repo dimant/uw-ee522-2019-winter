@@ -14,7 +14,7 @@
 #define SIZES 3
 const size_t sizes[SIZES] = { KBYTE, MBYTE, GBYTE };
 
-//void mem_benchmark();
+void mem_benchmark();
 double* byte_copy_benchmark(long iterations);
 double* hword_copy_benchmark(long iterations);
 double* word_copy_benchmark(long iterations);
