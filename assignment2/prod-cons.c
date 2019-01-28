@@ -23,21 +23,22 @@ volatile int meals;
 
 volatile short closed;
 
+int meals_served;
+int meals_made;
+
 clock_t opened_at;
 
 void* restaurant_clock(void* arg)
 {
     while (1)
     {
-        pthread_cond_wait(&servedMeal, &mutex);
+        sleep(3);
         
-        if ((double)(clock()- opened_at) / CLOCKS_PER_SEC > 3.0)
-        {
-            pthread_mutex_lock(&mutex);
-            closed = TRUE;
-            pthread_mutex_unlock(&mutex);
-            printf("Restaurant is closed.\n");
-        }
+        pthread_mutex_lock(&mutex);
+        closed = TRUE;
+        pthread_mutex_unlock(&mutex);
+        printf("Restaurant is closed.\nMeals served: %i meals made: %i.\n", meals_served, meals_made);
+        return NULL;
     }
 }
 
@@ -57,7 +58,7 @@ void* waiter(void* arg)
             pthread_cond_wait(&madeMeal, &mutex);
         }
         meals--;
-        printf("Served a meal %i meals on the counter.\n", meals);
+        meals_served++;
 
         pthread_mutex_unlock(&mutex);
         pthread_cond_signal(&servedMeal);
@@ -81,7 +82,7 @@ void* chef(void* arg)
             pthread_cond_wait(&servedMeal, &mutex);
         }
         meals++;
-        printf("Made a meal. %i meals on the counter.\n", meals);
+        meals_made++;
 
         pthread_mutex_unlock(&mutex);
         pthread_cond_signal(&madeMeal);
@@ -96,6 +97,8 @@ void restaurant()
 
     closed = FALSE;
     meals = 0;
+    meals_served = 0;
+    meals_made = 0;
     opened_at = clock();
 
     pthread_mutex_unlock(&mutex);
