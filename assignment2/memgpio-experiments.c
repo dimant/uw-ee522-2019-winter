@@ -10,14 +10,12 @@
 #include "memgpio-experiments.h"
 
 /*	cat /proc/iomem ouput:
-    00000000-00000000 : /soc/gpio@7e200000 
-*/
+    00000000-00000000 : /soc/gpio@7e200000 */
 #define GPIO_BASE 0x3F200000
 #define GPIO_OFFSET_PTR(base, x) *(base + (x / sizeof(uint32_t)))
 
 /*	from bcm2835 peripherals doc
-    https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
-*/
+    https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf */
 #define GPSET0 0x1c
 #define GPSET1 0x20
 #define GPCLR0 0x28
@@ -50,6 +48,7 @@ int mgp_init()
     /*  for some reason when cross-compiling from visual studio the preprocessor complains about not finding a prototype.
         the prototype is in unistd.h
     */
+
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
     int pagesize = getpagesize();
 #pragma GCC diagnostic warning "-Wimplicit-function-declaration"
@@ -71,18 +70,20 @@ void mgp_terminate()
     close(fd);
 }
 
-void mgp_setMode(char pin, char mode)
+void mgp_setMode(uint8_t pin, uint8_t mode)
 {
 	// per the doc (page 91, Table 6.2 and following), pins are occupying registries of 32 bit
 	// 10 pins per register, 3 bits per pin, remaining 2 bits are reserved
 	// https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
-	char reg = pin / 10;
-	char shift = (pin % 10) * 3;
+    uint32_t reg = pin / 10u;
+    uint32_t shift = (pin % 10u) * 3u;
+    uint32_t clr_mask = 7;
+    uint32_t mode_mask = mode;
  	
 	// we first clear the 3 bits corresponding to the pin
 	// then we apply the requested mode
 	// finally we copy back to the register
-	gpio[reg] = (gpio[reg] & ~(7<<shift)) | (mode<<shift);
+	gpio[reg] = (gpio[reg] & ~(clr_mask <<shift)) | (mode_mask <<shift);
 }
 
 int mgp_blinkLED(char pin)
@@ -90,9 +91,9 @@ int mgp_blinkLED(char pin)
     int result = mgp_init();
     IF_THEN_FAIL(0 != result, FAIL_CODE, "Failed initializing memgpio library.");
 
-    GPIO_OFFSET_PTR(gpio, GPSET0) = 1 << pin;
+    GPIO_OFFSET_PTR(gpio, GPSET0) = (uint32_t)(1 << pin);
     for (int x = 0; x < 500; x++) {}  // blocking delay hack using a simple loop
-    GPIO_OFFSET_PTR(gpio, GPCLR0) = 1 << pin;
+    GPIO_OFFSET_PTR(gpio, GPCLR0) = (uint32_t)(1 << pin);
 
     mgp_terminate();
     return 0;

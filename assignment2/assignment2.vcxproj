@@ -72,13 +72,14 @@
       </Message>
     </RemotePostBuildEvent>
     <ClCompile>
-      <AdditionalOptions>-std=c11 -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-std=c11 -pedantic -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
       <CLanguageStandard>Default</CLanguageStandard>
       <CppLanguageStandard>Default</CppLanguageStandard>
       <CppAdditionalWarning>switch;empty-body;conversion;return-type;parentheses;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <StrictAliasing>true</StrictAliasing>
       <TreatWarningAsError>true</TreatWarningAsError>
       <Verbose>true</Verbose>
+      <CAdditionalWarning>switch;no-deprecated-declarations;empty-body;return-type;parentheses;no-pointer-sign;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CAdditionalWarning)</CAdditionalWarning>
     </ClCompile>
     <PreBuildEvent>
       <Command>
@@ -90,17 +91,23 @@
     </RemotePreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="arith-benchmarks.c" />
     <ClCompile Include="bcm2835-experiments.c" />
     <ClCompile Include="export-pin.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="mem-benchmark.c" />
     <ClCompile Include="memgpio-experiments.c" />
+    <ClCompile Include="my-clock.c" />
     <ClCompile Include="pigpio-experiments.c" />
     <ClCompile Include="wiringpi-experiments.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="arith-benchmarks.h" />
     <ClInclude Include="bcm2835-experiments.h" />
     <ClInclude Include="export-pin.h" />
+    <ClInclude Include="mem-benchmark.h" />
     <ClInclude Include="memgpio-experiments.h" />
+    <ClInclude Include="my-clock.h" />
     <ClInclude Include="pigpio-experiments.h" />
     <ClInclude Include="wiringpi-experiments.h" />
   </ItemGroup>
@@ -116,13 +123,14 @@
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalOptions>-std=c11 -pedantic -Wconversion -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>-std=c11 -pedantic -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
       <CLanguageStandard>Default</CLanguageStandard>
       <CppLanguageStandard>Default</CppLanguageStandard>
       <CppAdditionalWarning>switch;empty-body;conversion;return-type;parentheses;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <StrictAliasing>true</StrictAliasing>
       <TreatWarningAsError>true</TreatWarningAsError>
       <Verbose>true</Verbose>
+      <CAdditionalWarning>switch;no-deprecated-declarations;empty-body;return-type;parentheses;no-pointer-sign;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CAdditionalWarning)</CAdditionalWarning>
     </ClCompile>
     <PreBuildEvent>
       <Command>
