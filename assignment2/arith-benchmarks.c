@@ -9,8 +9,8 @@ void arith_benchmark()
 {
     int i;
 
-    unsigned int sets = 10000;
-    long iterations = 10000;
+    unsigned int sets = 1000;
+    long iterations = 1000;
 
     for (i = 0; i < 5; i++)
     {

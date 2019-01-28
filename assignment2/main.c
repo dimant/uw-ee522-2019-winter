@@ -12,5 +12,5 @@
 
 int main(void)
 {
-    mem_benchmark();
+    arith_benchmark();
 }
