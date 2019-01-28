@@ -99,6 +99,7 @@
     <ClCompile Include="memgpio-experiments.c" />
     <ClCompile Include="my-clock.c" />
     <ClCompile Include="pigpio-experiments.c" />
+    <ClCompile Include="prod-cons.c" />
     <ClCompile Include="wiringpi-experiments.c" />
   </ItemGroup>
   <ItemGroup>
