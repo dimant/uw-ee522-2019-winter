@@ -10,6 +10,17 @@ typedef uint8_t  byte;
 typedef uint16_t hword;
 typedef uint32_t word;
 
+#define KBYTE 1024
+#define MBYTE 1048576
+#define GBYTE 1073741824
+
+#define BYTE_MAX 256
+#define HWORD_MAX 65536
+#define WORD_MAX 4294967295
+
+#define SIZES 3
+const size_t sizes[SIZES] = { KBYTE, MBYTE, GBYTE };
+
 void mem_benchmark()
 {
     int i, cur_size;
