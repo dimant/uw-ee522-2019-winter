@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 void mem_benchmark();
-double* byte_copy_benchmark(long iterations);
-double* hword_copy_benchmark(long iterations);
-double* word_copy_benchmark(long iterations);
+unsigned long* byte_copy_benchmark(long iterations);
+unsigned long* hword_copy_benchmark(long iterations);
+unsigned long* word_copy_benchmark(long iterations);
 
 #endif

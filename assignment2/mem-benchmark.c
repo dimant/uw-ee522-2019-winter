@@ -29,26 +29,34 @@ void mem_benchmark()
 
     long iterations = 1;
 
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 1; i++)
     {
-        double* byte_copy_result = byte_copy_benchmark(iterations);
-        double* hword_copy_result = hword_copy_benchmark(iterations);
-        double* word_copy_result = word_copy_benchmark(iterations);
+        printf(".\n");
+        long* byte_copy_result = byte_copy_benchmark(iterations);
+        printf(".\n");
+        long* hword_copy_result = hword_copy_benchmark(iterations);
+        printf(".\n");
+        long* word_copy_result = word_copy_benchmark(iterations);
+        printf(".\n");
 
         for (cur_size = 0; cur_size < SIZES; cur_size++)
         {
-            printf("Copying %i bytes of data in bytes: %fns hwords: %fns words: %fns\n", 
+            printf("Copying %i bytes. Total duration when copying bytes: %lfms hwords: %lfms words: %lfms\n", 
                 sizes[cur_size],
-                byte_copy_result[cur_size],
-                hword_copy_result[cur_size],
-                word_copy_result[cur_size]);
+                byte_copy_result[cur_size] / 1000.0,
+                hword_copy_result[cur_size] / 1000.0,
+                word_copy_result[cur_size] / 1000.0);
+
+            free(byte_copy_result);
+            free(hword_copy_result);
+            free(word_copy_result);
         }
     }
 }
 
-double* byte_copy_benchmark(long iterations)
+unsigned long* byte_copy_benchmark(long iterations)
 {
-    double* result = (double*) malloc(SIZES * sizeof(double));
+    unsigned long* result = (unsigned long*) malloc(SIZES * sizeof(unsigned long));
     byte* left;
     byte* right;
 
@@ -59,44 +67,39 @@ double* byte_copy_benchmark(long iterations)
 
     srand((unsigned int)time(NULL));
 
-    double avg = 0.0;
-
     for (cur_size = 0; cur_size < SIZES; cur_size++)
     {
         left = (byte*)malloc(sizes[cur_size]);
         right = (byte*)malloc(sizes[cur_size]);
         size_t operations = sizes[cur_size] / sizeof(byte);
 
-        for (cur_iteration = 0; cur_iteration < iterations; cur_iteration++)
+        for (cur_operation = 0; cur_operation < operations; cur_operation++)
         {
-            for (cur_operation = 0; cur_operation < operations; cur_operation++)
-            {
-                left[cur_operation] = (byte)rand() % BYTE_MAX;
-                right[cur_operation] = (byte)rand() % BYTE_MAX;
-            }
-
-            my_clock_gettime(CLOCK_REALTIME, &gettime_now);
-            start = gettime_now.tv_nsec;
-
-            for (cur_operation = 0; cur_operation < operations; cur_operation++)
-            {
-                left[cur_operation] = right[cur_operation];
-            }
-
-            my_clock_gettime(CLOCK_REALTIME, &gettime_now);
-            avg += (double) (gettime_now.tv_nsec - start) / (double)operations;
+            left[cur_operation] = (byte)rand() % BYTE_MAX;
+            right[cur_operation] = (byte)rand() % BYTE_MAX;
         }
 
-        avg /= (double)iterations;
-        result[cur_size] = avg;
+        my_clock_gettime(CLOCK_REALTIME, &gettime_now);
+        start = gettime_now.tv_nsec;
+
+        for (cur_operation = 0; cur_operation < operations; cur_operation++)
+        {
+            left[cur_operation] = right[cur_operation];
+        }
+
+        my_clock_gettime(CLOCK_REALTIME, &gettime_now);
+        result[cur_size] = (unsigned long) (gettime_now.tv_nsec / 1000 - start / 1000);
+
+        free(left);
+        free(right);
     }
 
     return result;
 }
 
-double* hword_copy_benchmark(long iterations)
+unsigned long* hword_copy_benchmark(long iterations)
 {
-    double* result = (double*)malloc(SIZES * sizeof(double));
+    unsigned long* result = (unsigned long*)malloc(SIZES * sizeof(unsigned long));
 
     hword* left;
     hword* right;
@@ -108,43 +111,39 @@ double* hword_copy_benchmark(long iterations)
 
     srand((unsigned int)time(NULL));
 
-    double avg = 0.0;
-
     for (cur_size = 0; cur_size < SIZES; cur_size++)
     {
         left = (hword*)malloc(sizes[cur_size]);
         right = (hword*)malloc(sizes[cur_size]);
         size_t operations = sizes[cur_size] / sizeof(hword);
 
-        for (cur_iteration = 0; cur_iteration < iterations; cur_iteration++)
+        for (cur_operation = 0; cur_operation < operations; cur_operation++)
         {
-            for (cur_operation = 0; cur_operation < operations; cur_operation++)
-            {
-                left[cur_operation] = (hword)rand() % HWORD_MAX;
-                right[cur_operation] = (hword)rand() % HWORD_MAX;
-            }
-
-            my_clock_gettime(CLOCK_REALTIME, &gettime_now);
-            start = gettime_now.tv_nsec;
-
-            for (cur_operation = 0; cur_operation < operations; cur_operation++)
-            {
-                left[cur_operation] = right[cur_operation];
-            }
-
-            my_clock_gettime(CLOCK_REALTIME, &gettime_now);
-            avg += (double)(gettime_now.tv_nsec - start) / (double)operations;
+            left[cur_operation] = (hword)rand() % HWORD_MAX;
+            right[cur_operation] = (hword)rand() % HWORD_MAX;
         }
-        avg /= (double)iterations;
-        result[cur_size] = avg;
+
+        my_clock_gettime(CLOCK_REALTIME, &gettime_now);
+        start = gettime_now.tv_nsec;
+
+        for (cur_operation = 0; cur_operation < operations; cur_operation++)
+        {
+            left[cur_operation] = right[cur_operation];
+        }
+
+        my_clock_gettime(CLOCK_REALTIME, &gettime_now);
+        result[cur_size] = (unsigned long)(gettime_now.tv_nsec / 1000 - start / 1000);
+
+        free(left);
+        free(right);
     }
 
     return result;
 }
 
-double* word_copy_benchmark(long iterations)
+unsigned long* word_copy_benchmark(long iterations)
 {
-    double* result = (double*)malloc(SIZES * sizeof(double));
+    unsigned long* result = (unsigned long*)malloc(SIZES * sizeof(unsigned long));
 
     word* left;
     word* right;
@@ -156,35 +155,31 @@ double* word_copy_benchmark(long iterations)
 
     srand((unsigned int)time(NULL));
 
-    double avg = 0.0;
-
     for (cur_size = 0; cur_size < SIZES; cur_size++)
     {
         left = (word*)malloc(sizes[cur_size]);
         right = (word*)malloc(sizes[cur_size]);
         size_t operations = sizes[cur_size] / sizeof(word);
 
-        for (cur_iteration = 0; cur_iteration < iterations; cur_iteration++)
+        for (cur_operation = 0; cur_operation < operations; cur_operation++)
         {
-            for (cur_operation = 0; cur_operation < operations; cur_operation++)
-            {
-                left[cur_operation] = (word) WORD_MAX * ((unsigned int) rand() % RAND_MAX / RAND_MAX);
-                right[cur_operation] = (word) WORD_MAX * ((unsigned int) rand() % RAND_MAX / RAND_MAX);
-            }
-
-            my_clock_gettime(CLOCK_REALTIME, &gettime_now);
-            start = gettime_now.tv_nsec;
-
-            for (cur_operation = 0; cur_operation < operations; cur_operation++)
-            {
-                left[cur_operation] = right[cur_operation];
-            }
-
-            my_clock_gettime(CLOCK_REALTIME, &gettime_now);
-            avg += (double)(gettime_now.tv_nsec - start) / (double)operations;
+            left[cur_operation] = (word) WORD_MAX * ((unsigned int) rand() % RAND_MAX / RAND_MAX);
+            right[cur_operation] = (word) WORD_MAX * ((unsigned int) rand() % RAND_MAX / RAND_MAX);
         }
-        avg /= (double)iterations;
-        result[cur_size] = avg;
+
+        my_clock_gettime(CLOCK_REALTIME, &gettime_now);
+        start = gettime_now.tv_nsec;
+
+        for (cur_operation = 0; cur_operation < operations; cur_operation++)
+        {
+            left[cur_operation] = right[cur_operation];
+        }
+
+        my_clock_gettime(CLOCK_REALTIME, &gettime_now);
+        result[cur_size] = (unsigned long)(gettime_now.tv_nsec / 1000 - start / 1000);
+
+        free(left);
+        free(right);
     }
 
     return result;
