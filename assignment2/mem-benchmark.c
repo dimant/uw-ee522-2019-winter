@@ -12,7 +12,9 @@ typedef uint32_t word;
 
 #define KBYTE 1024
 #define MBYTE 1048576
-#define GBYTE 1073741824
+// actually not a gbyte but 200mb
+// because you can't really allocate 2 1gb regions without a segfault
+#define GBYTE 209715200
 
 #define BYTE_MAX 256
 #define HWORD_MAX 65536
@@ -25,17 +27,20 @@ void mem_benchmark()
 {
     int i, cur_size;
 
-    long iterations = 10000;
+    long iterations = 1;
 
     for (i = 0; i < 5; i++)
     {
         double* byte_copy_result = byte_copy_benchmark(iterations);
+				printf(".");
         double* hword_copy_result = hword_copy_benchmark(iterations);
+				printf(".");
         double* word_copy_result = word_copy_benchmark(iterations);
+				printf(".\n");
 
         for (cur_size = 0; cur_size < SIZES; cur_size++)
         {
-            printf("Copying %i bytes of data in bytes: %fns hwords: %fns words: %fns", 
+            printf("Copying %i bytes of data in bytes: %fns hwords: %fns words: %fns\n", 
                 sizes[cur_size],
                 byte_copy_result[cur_size],
                 hword_copy_result[cur_size],
@@ -83,6 +88,7 @@ double* byte_copy_benchmark(long iterations)
 
             my_clock_gettime(CLOCK_REALTIME, &gettime_now);
             avg += (double) (gettime_now.tv_nsec - start) / (double)operations;
+						printf(".");
         }
 
         avg /= (double)iterations;
@@ -132,6 +138,7 @@ double* hword_copy_benchmark(long iterations)
 
             my_clock_gettime(CLOCK_REALTIME, &gettime_now);
             avg += (double)(gettime_now.tv_nsec - start) / (double)operations;
+						printf(".");
         }
         avg /= (double)iterations;
         result[cur_size] = avg;
@@ -180,6 +187,7 @@ double* word_copy_benchmark(long iterations)
 
             my_clock_gettime(CLOCK_REALTIME, &gettime_now);
             avg += (double)(gettime_now.tv_nsec - start) / (double)operations;
+						printf(".");
         }
         avg /= (double)iterations;
         result[cur_size] = avg;
