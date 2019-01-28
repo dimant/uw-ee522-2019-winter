@@ -15,16 +15,16 @@ void arith_benchmark()
     for (i = 0; i < 5; i++)
     {
         double int_mul_avg = int_mul_benchmark(sets, iterations);
-        printf("integer multiplication sets: %i iterations: %i average: %fns\n", sets, iterations, int_mul_avg);
+        printf("integer multiplication sets: %u iterations: %ld average: %fns\n", sets, iterations, int_mul_avg);
 
         double int_div_avg = int_div_benchmark(sets, iterations);
-        printf("integer division sets: %i iterations: %i average: %fns\n", sets, iterations, int_div_avg);
+        printf("integer division sets: %u iterations: %ld average: %fns\n", sets, iterations, int_div_avg);
 
         double float_mul_avg = float_mul_benchmark(sets, iterations);
-        printf("float multiplication sets: %i iterations: %i average: %fns\n", sets, iterations, float_mul_avg);
+        printf("float multiplication sets: %u iterations: %ld average: %fns\n", sets, iterations, float_mul_avg);
 
         double float_div_avg = float_div_benchmark(sets, iterations);
-        printf("float division sets: %i iterations: %i average: %fns\n", sets, iterations, float_div_avg);
+        printf("float division sets: %u iterations: %ld average: %fns\n", sets, iterations, float_div_avg);
     }
 }
 

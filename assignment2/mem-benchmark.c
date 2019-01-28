@@ -32,11 +32,11 @@ void mem_benchmark()
     for (i = 0; i < 1; i++)
     {
         printf(".\n");
-        long* byte_copy_result = byte_copy_benchmark(iterations);
+        unsigned long* byte_copy_result = byte_copy_benchmark(iterations);
         printf(".\n");
-        long* hword_copy_result = hword_copy_benchmark(iterations);
+        unsigned long* hword_copy_result = hword_copy_benchmark(iterations);
         printf(".\n");
-        long* word_copy_result = word_copy_benchmark(iterations);
+        unsigned long* word_copy_result = word_copy_benchmark(iterations);
         printf(".\n");
 
         for (cur_size = 0; cur_size < SIZES; cur_size++)
@@ -60,7 +60,7 @@ unsigned long* byte_copy_benchmark(long iterations)
     byte* left;
     byte* right;
 
-    int cur_size, cur_iteration, cur_operation;
+    int cur_size, cur_operation;
 
     long start;
     struct timespec gettime_now;
@@ -104,7 +104,7 @@ unsigned long* hword_copy_benchmark(long iterations)
     hword* left;
     hword* right;
 
-    int cur_size, cur_iteration, cur_operation;
+    int cur_size, cur_operation;
 
     long start;
     struct timespec gettime_now;
@@ -148,7 +148,7 @@ unsigned long* word_copy_benchmark(long iterations)
     word* left;
     word* right;
 
-    size_t cur_size, cur_iteration, cur_operation;
+    size_t cur_size, cur_operation;
 
     long start;
     struct timespec gettime_now;
