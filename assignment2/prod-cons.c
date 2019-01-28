@@ -3,6 +3,8 @@
 #include<pthread.h>
 #include <unistd.h>
 
+#include "prod-cons.h"
+
 #ifndef FALSE
 #define FALSE 0
 #endif
@@ -21,11 +23,22 @@ volatile int meals;
 
 volatile short closed;
 
-void my_usleep(unsigned int microseconds)
+clock_t opened_at;
+
+void* restaurant_clock(void* arg)
 {
-#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
-    usleep(microseconds);
-#pragma GCC diagnostic warning "-Wimplicit-function-declaration"
+    while (1)
+    {
+        pthread_cond_wait(&servedMeal, &mutex);
+        
+        if ((double)(clock()- opened_at) / CLOCKS_PER_SEC > 3.0)
+        {
+            pthread_mutex_lock(&mutex);
+            closed = TRUE;
+            pthread_mutex_unlock(&mutex);
+            printf("Restaurant is closed.\n");
+        }
+    }
 }
 
 void* waiter(void* arg)
@@ -35,6 +48,7 @@ void* waiter(void* arg)
         pthread_mutex_lock(&mutex);
         if (TRUE == closed)
         {
+            pthread_mutex_unlock(&mutex);
             return NULL;
         }
 
@@ -58,6 +72,7 @@ void* chef(void* arg)
 
         if (TRUE == closed)
         {
+            pthread_mutex_unlock(&mutex);
             return NULL;
         }
 
@@ -75,21 +90,22 @@ void* chef(void* arg)
 
 void restaurant()
 {
-    pthread_t chef_thread_id, waiter_thread_id;
+    pthread_t chef_thread_id, waiter_thread_id, clock_thread_id;
+
+    pthread_mutex_lock(&mutex);
 
     closed = FALSE;
     meals = 0;
+    opened_at = clock();
+
+    pthread_mutex_unlock(&mutex);
 
     pthread_create(&chef_thread_id, NULL, chef, NULL);
-    pthread_create(&waiter_thread_id, NULL, chef, NULL);
+    pthread_create(&waiter_thread_id, NULL, waiter, NULL);
+    pthread_create(&clock_thread_id, NULL, restaurant_clock, NULL);
 
+    printf("Restaurant is open.\n");
     pthread_join(chef_thread_id, NULL);
     pthread_join(waiter_thread_id, NULL);
-
-    // sleep for 10 seconds
-    my_usleep(10 * 1000 * 1000);
-
-    pthread_mutex_lock(&mutex);
-    closed = TRUE;
-    pthread_mutex_unlock(&mutex);
+    pthread_join(clock_thread_id, NULL);
 }

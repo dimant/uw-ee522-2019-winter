@@ -54,7 +54,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
-      <LibraryDependencies>wiringPi;bcm2835;pigpio</LibraryDependencies>
+      <LibraryDependencies>wiringPi;bcm2835;pigpio;pthread</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>sudo sh $(RemoteOutDir)/make-self.sh $(RemoteTargetPath)</Command>
@@ -64,7 +64,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <Link>
-      <LibraryDependencies>wiringPi;bcm2835;pigpio</LibraryDependencies>
+      <LibraryDependencies>wiringPi;bcm2835;pigpio;pthread</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>sudo sh $(RemoteOutDir)/make-self.sh $(RemoteTargetPath)</Command>
@@ -110,6 +110,7 @@
     <ClInclude Include="memgpio-experiments.h" />
     <ClInclude Include="my-clock.h" />
     <ClInclude Include="pigpio-experiments.h" />
+    <ClInclude Include="prod-cons.h" />
     <ClInclude Include="wiringpi-experiments.h" />
   </ItemGroup>
   <ItemGroup>

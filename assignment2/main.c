@@ -9,8 +9,9 @@
 #include "memgpio-experiments.h"
 #include "arith-benchmarks.h"
 #include "mem-benchmark.h"
+#include "prod-cons.h"
 
 int main(void)
 {
-    arith_benchmark();
+    restaurant();
 }
