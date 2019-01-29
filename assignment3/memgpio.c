@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "memgpio.h"
-#include "macros.h"
+#include "error-macros.h"
 
 /*	cat /proc/iomem ouput:
     00000000-00000000 : /soc/gpio@7e200000 */
