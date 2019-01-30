@@ -4,11 +4,11 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/mman.h>
-#include <stdint.h>   // for uint32_t - 32-bit unsigned integer
 #include <string.h>
 
 #include "memgpio.h"
 #include "error-macros.h"
+#include "drawing-macros.h"
 
 /*	cat /proc/iomem ouput:
     00000000-00000000 : /soc/gpio@7e200000 */
@@ -23,15 +23,6 @@
 #define GPCLR1 0x2c
 #define GPLVL0 0x34
 #define GPLVL1 0x38
-
-#define MODE_INPUT  0
-#define MODE_OUTPUT 1
-#define MODE_ALT0   4
-#define MODE_ALT1   5
-#define MODE_ALT2   6
-#define MODE_ALT3   7
-#define MODE_ALT4   3
-#define MODE_ALT5   2
 
 static volatile uint32_t *gpio;
 static int fd;
@@ -66,7 +57,7 @@ void mgp_terminate()
     close(fd);
 }
 
-void mgp_setMode(uint8_t pin, uint8_t mode)
+void mgp_setMode(uint32_t pin, uint32_t mode)
 {
 	// per the doc (page 91, Table 6.2 and following), pins are occupying registries of 32 bit
 	// 10 pins per register, 3 bits per pin, remaining 2 bits are reserved
@@ -80,6 +71,21 @@ void mgp_setMode(uint8_t pin, uint8_t mode)
 	// then we apply the requested mode
 	// finally we copy back to the register
 	gpio[reg] = (gpio[reg] & ~(clr_mask <<shift)) | (mode_mask <<shift);
+}
+
+void mgp_xy_set(uint32_t x, uint32_t y)
+{
+    GPIO_OFFSET_PTR(gpio, GPSET0) = XY_TO_GPIO(x, y);
+}
+
+void mgp_bits_set(uint32_t bits)
+{
+    GPIO_OFFSET_PTR(gpio, GPSET0) = bits;
+}
+
+void mgp_bits_clr(uint32_t bits)
+{
+    GPIO_OFFSET_PTR(gpio, GPCLR0) = bits;
 }
 
 int mgp_blinkLED(char pin)
