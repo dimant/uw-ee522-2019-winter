@@ -58,9 +58,9 @@ uint32_t* draw_update()
 {
     ASSERT(draw_initialized == TRUE);
 
-    uint32_t draw_buffer = buffer;
+    uint32_t* draw_buffer = buffer;
 
-    if(buffer = front_buffer)
+    if(buffer == front_buffer)
     {
         buffer = back_buffer;
     }
@@ -123,4 +123,28 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
 
     // note that this division needs to be done in a way that preserves the fractional part
     double deltaerr = fabs(deltay / deltax);
+    double error = 0;
+
+    uint32_t y = y0;
+    for(uint32_t x = x0; x <= x1; x++)
+    {
+        buffer[x + y * buffer_w] = TRUE; 
+        error += deltaerr;
+
+        if(error > 0.5)
+        {
+            if(signbit(deltay))
+            {
+                y -= 1;
+            }
+            else
+            {
+                y += 1;
+            }
+
+            error -= 1.0;
+        }
+    }
+
+    return buffer;
 }
