@@ -16,6 +16,7 @@ static uint32_t buffer_w = 0;
 static uint32_t buffer_h = 0;
 
 #define CLEAR_BUFFER(b) ASSERT(memset(b, 0, buffer_w * buffer_h * sizeof(b)) != NULL)
+#define PUTPIXEL(x, y) buffer[x + y * buffer_w] = TRUE;
 
 uint32_t* draw_init(uint32_t w, uint32_t h)
 {
@@ -77,6 +78,11 @@ uint32_t* draw_update()
 /// draws the outline of a rectangle - horizontal and vertical lines only
 uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
+    ASSERT(x >= 0);
+    ASSERT(y >= 0);
+    ASSERT(w > 0);
+    ASSERT(h > 0);
+
     ASSERT(draw_initialized == TRUE);
     ASSERT(x + w - 1 <= buffer_w);
     ASSERT(y + h - 1 <= buffer_h);
@@ -85,22 +91,22 @@ uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 
     for(i = 0; i < x + w; i++)
     {
-        buffer[i + y * buffer_w] = TRUE;
+        PUTPIXEL(i, y)
     }
 
     for(i = 0; i < x + w; i++)
     {
-        buffer[i + (y + h - 1) * buffer_w] = TRUE;
+        PUTPIXEL(i, y + h - 1)
     }
     
     for(i = 0; i < y + h; i++)
     {
-        buffer[x + i * buffer_w] = TRUE;
+        PUTPIXEL(x, i)
     }
 
     for(i = 0; i < y + h; i++)
     {
-        buffer[x + w - 1 + i * buffer_w] = TRUE;
+        PUTPIXEL(x + w - 1, i)
     }
 
     return buffer;
@@ -110,6 +116,11 @@ uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 /// https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
 uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
 {
+    ASSERT(x0 >= 0);
+    ASSERT(x1 > 0);
+    ASSERT(y0 >= 0);
+    ASSERT(y1 > 0);
+
     ASSERT(x0 - 1 < buffer_w);
     ASSERT(x1 < buffer_w);
     ASSERT(y0 - 1 < buffer_w);
@@ -128,7 +139,7 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
     uint32_t y = y0;
     for(uint32_t x = x0; x <= x1; x++)
     {
-        buffer[x + y * buffer_w] = TRUE; 
+        PUTPIXEL(x, y);
         error += deltaerr;
 
         if(error > 0.5)
@@ -143,6 +154,47 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
             }
 
             error -= 1.0;
+        }
+    }
+
+    return buffer;
+}
+
+uint32_t* draw_circle(uint32_t x0, uint32_t y0, uint32_t radius)
+{
+    ASSERT(x0 - radius >= 0);
+    ASSERT(y0 - radius >= 0);
+    ASSERT(x0 + radius < buffer_w);
+    ASSERT(y0 + radius < buffer_h);
+
+    uint32_t x = radius-1;
+    uint32_t y = 0;
+    uint32_t dx = 1;
+    uint32_t dy = 1;
+    uint32_t err = dx - (radius << 1);
+    
+    while (x >= y)
+    {
+        PUTPIXEL(x0 + x, y0 + y);
+        PUTPIXEL(x0 + y, y0 + x);
+        PUTPIXEL(x0 - y, y0 + x);
+        PUTPIXEL(x0 - x, y0 + y);
+        PUTPIXEL(x0 - x, y0 - y);
+        PUTPIXEL(x0 - y, y0 - x);
+        PUTPIXEL(x0 + y, y0 - x);
+        PUTPIXEL(x0 + x, y0 - y);
+        
+        if (err <= 0)
+        {
+            y++;
+            err += dy;
+            dy += 2;
+        }
+        else
+        {
+            x--;
+            dx += 2;
+            err += dx - (radius << 1);
         }
     }
 
