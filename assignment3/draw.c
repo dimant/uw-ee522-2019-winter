@@ -1,11 +1,12 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#include "type-macros.h"
-#include <assert-macros.h>
-#include "memgpio.h"
 #include "draw.h"
+#include "assert-macros.h"
+#include "memgpio.h"
+#include "type-macros.h"
 
 static int draw_initialized = FALSE;
 
@@ -17,11 +18,13 @@ static uint32_t buffer_h = 0;
 
 #define CLEAR_BUFFER(b) ASSERT(memset(b, 0, buffer_w * buffer_h * sizeof(b)) != NULL)
 #define PUTPIXEL(x, y) buffer[x + y * buffer_w] = TRUE;
+#define CLRPIXEL(x, y) buffer[x + y * buffer_w] = FALSE;
+
 
 uint32_t* draw_init(uint32_t w, uint32_t h)
 {
-    ASSERT(w % (8 * sizeof(back_buffer)) == 0);
-    ASSERT(h % (8 * sizeof(back_buffer)) == 0);
+    ASSERT(w % (8 * sizeof(back_buffer)) == 0)
+    ASSERT(h % (8 * sizeof(back_buffer)) == 0)
 
     buffer_w = w;
     buffer_h = h;
@@ -30,7 +33,7 @@ uint32_t* draw_init(uint32_t w, uint32_t h)
     CLEAR_BUFFER(back_buffer);
 
     front_buffer = (uint32_t*) malloc(w*h*sizeof(front_buffer));
-    CLEAR_BUFFER(front_buffer);
+    CLEAR_BUFFER(front_buffer)
     
     buffer = back_buffer;
 
@@ -41,7 +44,7 @@ uint32_t* draw_init(uint32_t w, uint32_t h)
 
 void draw_free()
 {
-    ASSERT(draw_initialized == TRUE);
+    ASSERT(draw_initialized == TRUE)
 
     draw_initialized = FALSE;
 
@@ -55,11 +58,9 @@ void draw_free()
     buffer_h = 0;
 }
 
-uint32_t* draw_update()
+uint32_t* draw_swap()
 {
-    ASSERT(draw_initialized == TRUE);
-
-    uint32_t* draw_buffer = buffer;
+    ASSERT(draw_initialized == TRUE)
 
     if(buffer == front_buffer)
     {
@@ -72,20 +73,20 @@ uint32_t* draw_update()
 
     CLEAR_BUFFER(buffer);
 
-    return draw_buffer;
+    return buffer;
 }
 
 /// draws the outline of a rectangle - horizontal and vertical lines only
 uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
-    ASSERT(x >= 0);
-    ASSERT(y >= 0);
-    ASSERT(w > 0);
-    ASSERT(h > 0);
+    ASSERT(x >= 0)
+    ASSERT(y >= 0)
+    ASSERT(w > 0)
+    ASSERT(h > 0)
 
-    ASSERT(draw_initialized == TRUE);
-    ASSERT(x + w - 1 <= buffer_w);
-    ASSERT(y + h - 1 <= buffer_h);
+    ASSERT(draw_initialized == TRUE)
+    ASSERT(x + w - 1 <= buffer_w)
+    ASSERT(y + h - 1 <= buffer_h)
 
     uint32_t i;
 
@@ -116,15 +117,15 @@ uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 /// https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
 uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
 {
-    ASSERT(x0 >= 0);
-    ASSERT(x1 > 0);
-    ASSERT(y0 >= 0);
-    ASSERT(y1 > 0);
+    ASSERT(x0 >= 0)
+    ASSERT(x1 > 0)
+    ASSERT(y0 >= 0)
+    ASSERT(y1 > 0)
 
-    ASSERT(x0 - 1 < buffer_w);
-    ASSERT(x1 < buffer_w);
-    ASSERT(y0 - 1 < buffer_w);
-    ASSERT(y1 < buffer_w);
+    ASSERT(x0 - 1 < buffer_w)
+    ASSERT(x1 < buffer_w)
+    ASSERT(y0 - 1 < buffer_w)
+    ASSERT(y1 < buffer_w)
 
     double deltax = x1 - x0;
     double deltay = y1 - y0;
@@ -139,7 +140,7 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
     uint32_t y = y0;
     for(uint32_t x = x0; x <= x1; x++)
     {
-        PUTPIXEL(x, y);
+        PUTPIXEL(x, y)
         error += deltaerr;
 
         if(error > 0.5)
@@ -162,10 +163,10 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
 
 uint32_t* draw_circle(uint32_t x0, uint32_t y0, uint32_t radius)
 {
-    ASSERT(x0 - radius >= 0);
-    ASSERT(y0 - radius >= 0);
-    ASSERT(x0 + radius < buffer_w);
-    ASSERT(y0 + radius < buffer_h);
+    ASSERT(x0 - radius >= 0)
+    ASSERT(y0 - radius >= 0)
+    ASSERT(x0 + radius < buffer_w)
+    ASSERT(y0 + radius < buffer_h)
 
     uint32_t x = radius-1;
     uint32_t y = 0;
@@ -199,4 +200,40 @@ uint32_t* draw_circle(uint32_t x0, uint32_t y0, uint32_t radius)
     }
 
     return buffer;
+}
+
+uint32_t* draw_copy(uint32_t x, uint32_t y, uint32_t* src, uint32_t src_w, uint32_t src_h)
+{
+    ASSERT(x >= 0)
+    ASSERT(y >= 0)
+    ASSERT(src != NULL)
+    ASSERT(x + src_w - 1 < buffer_w)
+    ASSERT(y + src_h - 1 < buffer_h)
+
+    uint32_t src_i, src_j;
+    uint32_t dst_i, dst_j;
+
+    for(src_i = 0, dst_i = x; src_i < src_w; src_i++, dst_i++)
+    {
+        for(src_j = 0, dst_j = y; src_j < src_h; src_j++, dst_j++)
+        {
+            switch(src[src_i + src_j * src_w])
+            {
+                case CLEAR_PXL:
+                    CLRPIXEL(dst_i, dst_j)
+                    break;
+                case DRAW_PXL:
+                    PUTPIXEL(dst_i, dst_j)
+                    break;
+                case KEEP_PXL:
+                    break;
+                default:
+                    break;
+
+            }
+        }
+    }
+
+    return buffer;
+
 }
