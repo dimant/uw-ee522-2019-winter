@@ -210,22 +210,22 @@ uint32_t* draw_copy(uint32_t x, uint32_t y, uint32_t* src, uint32_t src_w, uint3
     ASSERT(x + src_w - 1 < buffer_w)
     ASSERT(y + src_h - 1 < buffer_h)
 
-    uint32_t src_i, src_j;
-    uint32_t dst_i, dst_j;
+    uint32_t src_y, src_x;
+    uint32_t dst_y, dst_x;
 
-    for(src_i = 0, dst_i = x; src_i < src_w; src_i++, dst_i++)
+    for(src_y = 0, dst_y = y; src_y < src_h; src_y++, dst_y++)
     {
-        for(src_j = 0, dst_j = y; src_j < src_h; src_j++, dst_j++)
+        for(src_x = 0, dst_x = x; src_x < src_w; src_x++, dst_x++)
         {
-            switch(src[src_i + src_j * src_w])
+            switch(src[src_x + src_y * src_w])
             {
-                case CLEAR_PXL:
-                    CLRPIXEL(dst_i, dst_j)
+                case PXL_CLEAR:
+                    CLRPIXEL(dst_x, dst_y)
                     break;
-                case DRAW_PXL:
-                    PUTPIXEL(dst_i, dst_j)
+                case PXL_PUT:
+                    PUTPIXEL(dst_x, dst_y)
                     break;
-                case KEEP_PXL:
+                case PXL_KEEP:
                     break;
                 default:
                     break;
@@ -235,5 +235,29 @@ uint32_t* draw_copy(uint32_t x, uint32_t y, uint32_t* src, uint32_t src_w, uint3
     }
 
     return buffer;
+}
 
+uint32_t draw_collide(uint32_t x, uint32_t y, uint32_t* src, uint32_t src_w, uint32_t src_h)
+{
+    ASSERT(x >= 0)
+    ASSERT(y >= 0)
+    ASSERT(src != NULL)
+    ASSERT(x + src_w - 1 < buffer_w)
+    ASSERT(y + src_h - 1 < buffer_h)
+
+    uint32_t src_y, src_x;
+    uint32_t dst_y, dst_x;
+
+    for(src_y = 0, dst_y = y; src_y < src_h; src_y++, dst_y++)
+    {
+        for(src_x = 0, dst_x = x; src_x < src_w; src_x++, dst_x++)
+        {
+            if(src[src_x + src_y * src_w] & buffer[dst_x + dst_y * buffer_w])
+            {
+               return TRUE; 
+            }
+        }
+    }
+
+    return FALSE;
 }

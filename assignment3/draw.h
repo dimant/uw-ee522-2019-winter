@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#define CLEAR_PXL 0
-#define DRAW_PXL  1
-#define KEEP_PXL  2
+#define PXL_CLEAR 0
+#define PXL_PUT  1
+#define PXL_KEEP  3
 
 uint32_t* draw_init(uint32_t w, uint32_t h);
 void draw_free();
