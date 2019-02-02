@@ -7,8 +7,8 @@
 #include <string.h>
 
 #include "memgpio.h"
-#include "error-macros.h"
 #include "drawing-macros.h"
+#include "assert-macros.h"
 
 /*	cat /proc/iomem ouput:
     00000000-00000000 : /soc/gpio@7e200000 */
@@ -27,10 +27,10 @@
 static volatile uint32_t *gpio;
 static int fd;
 
-int mgp_init()
+void mgp_init()
 {
     fd = open("/dev/mem", O_RDWR | O_SYNC);
-    IF_THEN_FAIL_FMT(fd < 0, FAIL_CODE, "Unable to open /dev/mem: %s\n", strerror(errno));
+    ASSERT(fd >= 0)
 
     /*  for some reason when cross-compiling from visual studio the preprocessor complains about not finding a prototype.
         the prototype is in unistd.h
@@ -41,9 +41,29 @@ int mgp_init()
 #pragma GCC diagnostic warning "-Wimplicit-function-declaration"
 
     gpio = (uint32_t *) mmap(0, (size_t) pagesize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
-    IF_THEN_FAIL_FMT(((uint32_t)gpio) < 0, FAIL_CODE, "Memory mapping failed: %s\n", strerror(errno));
+    ASSERT((uint32_t) gpio >= 0)
 
-    return 0;
+    mgp_setMode(X_BIT0, MODE_OUTPUT);
+    mgp_setMode(X_BIT1, MODE_OUTPUT);
+    mgp_setMode(X_BIT2, MODE_OUTPUT);
+    mgp_setMode(X_BIT3, MODE_OUTPUT);
+    mgp_setMode(X_BIT4, MODE_OUTPUT);
+    mgp_setMode(X_BIT5, MODE_OUTPUT);
+    mgp_setMode(X_BIT6, MODE_OUTPUT);
+    mgp_setMode(X_BIT7, MODE_OUTPUT);
+    mgp_setMode(X_BIT8, MODE_OUTPUT);
+    mgp_setMode(X_BIT9, MODE_OUTPUT);
+
+    mgp_setMode(Y_BIT0, MODE_OUTPUT);
+    mgp_setMode(Y_BIT1, MODE_OUTPUT);
+    mgp_setMode(Y_BIT2, MODE_OUTPUT);
+    mgp_setMode(Y_BIT3, MODE_OUTPUT);
+    mgp_setMode(Y_BIT4, MODE_OUTPUT);
+    mgp_setMode(Y_BIT5, MODE_OUTPUT);
+    mgp_setMode(Y_BIT6, MODE_OUTPUT);
+    mgp_setMode(Y_BIT7, MODE_OUTPUT);
+    mgp_setMode(Y_BIT8, MODE_OUTPUT);
+    mgp_setMode(Y_BIT9, MODE_OUTPUT);
 }
 
 void mgp_terminate()

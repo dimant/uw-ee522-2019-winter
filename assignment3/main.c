@@ -1,47 +1,63 @@
 #include <stdio.h>
 
-#include "drawing-macros.h"
-#include "memgpio.h"
+#define _POSIX_C_SOURCE 200809L
+
+#include <alsa/asoundlib.h>
+#include <alsa/pcm.h>
+#include <math.h>
+
+#define SAMPLING_RATE 16000
+
+#ifndef M_PI
+#    define M_PI 3.14159265358979323846
+#endif
+
+#include "assert-macros.h"
+
+static const char *device = "default";
+snd_output_t *output = NULL;
+float buffer [SAMPLING_RATE * 2];
 
 int main(void)
 {
-    mgp_init();
+    int err;
+    int j, k;
 
-    mgp_setMode(X_BIT0, MODE_OUTPUT);
-    mgp_setMode(X_BIT1, MODE_OUTPUT);
-    mgp_setMode(X_BIT2, MODE_OUTPUT);
-    mgp_setMode(X_BIT3, MODE_OUTPUT);
-    mgp_setMode(X_BIT4, MODE_OUTPUT);
-    mgp_setMode(X_BIT5, MODE_OUTPUT);
-    mgp_setMode(X_BIT6, MODE_OUTPUT);
-    mgp_setMode(X_BIT7, MODE_OUTPUT);
-    mgp_setMode(X_BIT8, MODE_OUTPUT);
-    mgp_setMode(X_BIT9, MODE_OUTPUT);
+    int f = 440;                //frequency
+    //int fs = SAMPLING_RATE;             //sampling frequency
 
-    mgp_setMode(Y_BIT0, MODE_OUTPUT);
-    mgp_setMode(Y_BIT1, MODE_OUTPUT);
-    mgp_setMode(Y_BIT2, MODE_OUTPUT);
-    mgp_setMode(Y_BIT3, MODE_OUTPUT);
-    mgp_setMode(Y_BIT4, MODE_OUTPUT);
-    mgp_setMode(Y_BIT5, MODE_OUTPUT);
-    mgp_setMode(Y_BIT6, MODE_OUTPUT);
-    mgp_setMode(Y_BIT7, MODE_OUTPUT);
-    mgp_setMode(Y_BIT8, MODE_OUTPUT);
-    mgp_setMode(Y_BIT9, MODE_OUTPUT);
+    snd_pcm_t *handle;
+    //snd_pcm_sframes_t frames;
 
+
+    // ERROR HANDLING
+
+    err = snd_pcm_open(&handle, device, SND_PCM_STREAM_PLAYBACK, 0);
+    ASSERT(err >= 0);
+
+    err = snd_pcm_set_params(handle,
+                    SND_PCM_FORMAT_FLOAT,
+                    SND_PCM_ACCESS_RW_INTERLEAVED,
+                    2,
+                    SAMPLING_RATE,
+                    1,
+                    100000);
+    ASSERT(err >= 0);
+
+    // SINE WAVE
+    printf("Sine tone at %dHz\n",f);
+
+//    for (k = 0; k < SAMPLING_RATE * 2; k += 2)
+//    {
+//        buffer[k] = (float) (sin(2 * M_PI * f / fs * k));
+//        buffer[k + 1] = (float) (sin(2 * M_PI * f / fs * k + M_PI / 2.0));
+//    }       
 
     while(1)
     {
-        for(uint32_t x = 0; x < 1024; x++)
-        {
-            mgp_xy_set(2, x);
-            for (int i = 0; i < 1000; i++) {}  // blocking delay hack using a simple loop
-            mgp_xy_clr(2, x);
-            for (int i = 0; i < 1000; i++) {}  // blocking delay hack using a simple loop
-        }
+        snd_pcm_writei(handle, buffer, SAMPLING_RATE);    //sending values to sound driver
     }
 
-
-    mgp_terminate();    
+    snd_pcm_close(handle);
     return 0;
 }

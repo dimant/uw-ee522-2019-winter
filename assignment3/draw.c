@@ -17,14 +17,14 @@ static uint32_t buffer_w = 0;
 static uint32_t buffer_h = 0;
 
 #define CLEAR_BUFFER(b) ASSERT(memset(b, 0, buffer_w * buffer_h * sizeof(b)) != NULL)
-#define PUTPIXEL(x, y) buffer[x + y * buffer_w] = TRUE;
-#define CLRPIXEL(x, y) buffer[x + y * buffer_w] = FALSE;
+#define PUTPIXEL(x, y) buffer[(x) + (y) * Y_MAX] = TRUE;
+#define CLRPIXEL(x, y) buffer[(x) + (y) * Y_MAX] = FALSE;
 
 
 uint32_t* draw_init(uint32_t w, uint32_t h)
 {
-    ASSERT(w % (8 * sizeof(back_buffer)) == 0)
-    ASSERT(h % (8 * sizeof(back_buffer)) == 0)
+    ASSERT(w % (8 * sizeof(back_buffer)) == 0);
+    ASSERT(h % (8 * sizeof(back_buffer)) == 0);
 
     buffer_w = w;
     buffer_h = h;
@@ -33,8 +33,8 @@ uint32_t* draw_init(uint32_t w, uint32_t h)
     CLEAR_BUFFER(back_buffer);
 
     front_buffer = (uint32_t*) malloc(w*h*sizeof(front_buffer));
-    CLEAR_BUFFER(front_buffer)
-    
+    CLEAR_BUFFER(front_buffer);
+
     buffer = back_buffer;
 
     draw_initialized = TRUE;
@@ -44,7 +44,7 @@ uint32_t* draw_init(uint32_t w, uint32_t h)
 
 void draw_free()
 {
-    ASSERT(draw_initialized == TRUE)
+    ASSERT(draw_initialized == TRUE);
 
     draw_initialized = FALSE;
 
@@ -60,7 +60,7 @@ void draw_free()
 
 uint32_t* draw_swap()
 {
-    ASSERT(draw_initialized == TRUE)
+    ASSERT(draw_initialized == TRUE);
 
     if(buffer == front_buffer)
     {
@@ -77,37 +77,37 @@ uint32_t* draw_swap()
 }
 
 /// draws the outline of a rectangle - horizontal and vertical lines only
-uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+uint32_t* draw_rect(uint32_t x0, uint32_t y0, uint32_t w, uint32_t h)
 {
-    ASSERT(x >= 0)
-    ASSERT(y >= 0)
-    ASSERT(w > 0)
-    ASSERT(h > 0)
+    ASSERT(x0 >= 0);
+    ASSERT(y0 >= 0);
+    ASSERT(w > 0);
+    ASSERT(h > 0);
 
-    ASSERT(draw_initialized == TRUE)
-    ASSERT(x + w - 1 <= buffer_w)
-    ASSERT(y + h - 1 <= buffer_h)
+    ASSERT(draw_initialized == TRUE);
+    ASSERT(x0 + w - 1 <= buffer_w);
+    ASSERT(y0 + h - 1 <= buffer_h);
 
     uint32_t i;
 
-    for(i = 0; i < x + w; i++)
+    for(i = x0; i < x0 + w; i++)
     {
-        PUTPIXEL(i, y)
+        PUTPIXEL(i, y0);
     }
 
-    for(i = 0; i < x + w; i++)
+    for(i = y0; i < y0 + h; i++)
     {
-        PUTPIXEL(i, y + h - 1)
-    }
-    
-    for(i = 0; i < y + h; i++)
-    {
-        PUTPIXEL(x, i)
+        PUTPIXEL(x0 + w - 1, i);
     }
 
-    for(i = 0; i < y + h; i++)
+    for(i = x0 + w - 1; i >= x0; i--)
     {
-        PUTPIXEL(x + w - 1, i)
+        PUTPIXEL(i, y0 + h - 1);
+    }
+
+    for(i = y0 + h - 1; i >= y0; i--)
+    {
+        PUTPIXEL(x0, i);
     }
 
     return buffer;
@@ -117,15 +117,15 @@ uint32_t* draw_rect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 /// https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
 uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
 {
-    ASSERT(x0 >= 0)
-    ASSERT(x1 > 0)
-    ASSERT(y0 >= 0)
-    ASSERT(y1 > 0)
+    ASSERT(x0 >= 0);
+    ASSERT(x1 > 0);
+    ASSERT(y0 >= 0);
+    ASSERT(y1 > 0);
 
-    ASSERT(x0 - 1 < buffer_w)
-    ASSERT(x1 < buffer_w)
-    ASSERT(y0 - 1 < buffer_w)
-    ASSERT(y1 < buffer_w)
+    ASSERT(x0 < buffer_w);
+    ASSERT(x1 - 1 < buffer_w);
+    ASSERT(y0 < buffer_w);
+    ASSERT(x1 - 1 < buffer_w);
 
     double deltax = x1 - x0;
     double deltay = y1 - y0;
@@ -140,7 +140,7 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
     uint32_t y = y0;
     for(uint32_t x = x0; x <= x1; x++)
     {
-        PUTPIXEL(x, y)
+        PUTPIXEL(x, y);
         error += deltaerr;
 
         if(error > 0.5)
@@ -161,54 +161,147 @@ uint32_t* draw_line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
     return buffer;
 }
 
-uint32_t* draw_circle(uint32_t x0, uint32_t y0, uint32_t radius)
+uint32_t* draw_hline(uint32_t x0, uint32_t y0, uint32_t l)
 {
-    ASSERT(x0 - radius >= 0)
-    ASSERT(y0 - radius >= 0)
-    ASSERT(x0 + radius < buffer_w)
-    ASSERT(y0 + radius < buffer_h)
+    ASSERT(y0 > 0);
+    ASSERT(y0 < buffer_h);
+    ASSERT(x0 > 0);
+    ASSERT(x0 + l < buffer_w);
 
-    uint32_t x = radius-1;
-    uint32_t y = 0;
-    uint32_t dx = 1;
-    uint32_t dy = 1;
-    uint32_t err = dx - (radius << 1);
-    
-    while (x >= y)
+    for(uint32_t x = x0; x < x0 + l; x++)
     {
-        PUTPIXEL(x0 + x, y0 + y);
-        PUTPIXEL(x0 + y, y0 + x);
-        PUTPIXEL(x0 - y, y0 + x);
-        PUTPIXEL(x0 - x, y0 + y);
-        PUTPIXEL(x0 - x, y0 - y);
-        PUTPIXEL(x0 - y, y0 - x);
-        PUTPIXEL(x0 + y, y0 - x);
-        PUTPIXEL(x0 + x, y0 - y);
-        
-        if (err <= 0)
-        {
-            y++;
-            err += dy;
-            dy += 2;
-        }
-        else
-        {
-            x--;
-            dx += 2;
-            err += dx - (radius << 1);
-        }
+       PUTPIXEL(x, y0); 
     }
 
     return buffer;
 }
 
+uint32_t* draw_vline(uint32_t x0, uint32_t y0, uint32_t l)
+{
+    ASSERT(y0 > 0);
+    ASSERT(y0 + l < buffer_h);
+    ASSERT(x0 > 0);
+    ASSERT(x0 < buffer_w);
+
+    for(uint32_t y = y0; y < y0 + l; y++)
+    {
+       PUTPIXEL(x0, y); 
+    }
+
+    return buffer;
+}
+
+uint32_t* draw_circle(uint32_t x0, uint32_t y0, uint32_t r) 
+{ 
+    ASSERT(x0 - r >= 0);
+    ASSERT(y0 - r >= 0);
+    ASSERT(x0 + r < buffer_w);
+    ASSERT(y0 + r < buffer_h);
+
+    int x = (int) r;
+    int y = 0; 
+
+    // Printing the initial point on the axes after translation 
+    PUTPIXEL(x + (int) x0, y + (int) y0);
+
+    // When radius is zero only a single point will be printed 
+    if (r > 0) 
+    { 
+        PUTPIXEL( x + (int) x0, -y + (int) y0);
+        PUTPIXEL( y + (int) x0,  x + (int) y0);
+        PUTPIXEL(-y + (int) x0,  x + (int) y0);
+    } 
+
+    // Initialising the value of P 
+    int P = 1 - (int) r; 
+    while (x > y) 
+    {  
+        y++; 
+
+        // Mid-point is inside or on the perimeter 
+        if (P <= 0) 
+            P = P + 2*y + 1; 
+
+        // Mid-point is outside the perimeter 
+        else
+        { 
+            x--; 
+            P = P + 2*y - 2*x + 1; 
+        } 
+
+        // All the perimeter points have already been printed 
+        if (x < y) 
+            break; 
+
+        // Printing the generated point and its reflection 
+        // in the other octants after translation 
+        PUTPIXEL( x + (int) x0,  y + (int) y0);
+        PUTPIXEL(-x + (int) x0,  y + (int) y0);
+        PUTPIXEL( x + (int) x0, -y + (int) y0);
+        PUTPIXEL(-x + (int) x0, -y + (int) y0);
+
+        // If the generated point is on the line x = y then  
+        // the perimeter points have already been printed 
+        if (x != y) 
+        { 
+            PUTPIXEL( y + (int) x0,  x + (int) y0);
+            PUTPIXEL(-y + (int) x0,  x + (int) y0);
+            PUTPIXEL( y + (int) x0, -x + (int) y0);
+            PUTPIXEL(-y + (int) x0, -x + (int) y0);
+        } 
+    }  
+
+    return buffer;
+} 
+
+//uint32_t* draw_circle(uint32_t x0, uint32_t y0, uint32_t radius)
+//{
+//    ASSERT(x0 - radius >= 0)
+//    ASSERT(y0 - radius >= 0)
+//    ASSERT(x0 + radius < buffer_w)
+//    ASSERT(y0 + radius < buffer_h)
+//
+//    uint32_t x = radius-1;
+//    uint32_t y = 0;
+//    uint32_t dx = 1;
+//    uint32_t dy = 1;
+//    uint32_t err = dx - (radius << 1);
+//    
+//    while (x >= y)
+//    {
+//        PUTPIXEL(x0 + x, y0 + y);
+//        PUTPIXEL(x0 + y, y0 + x);
+//        PUTPIXEL(x0 - y, y0 + x);
+//        PUTPIXEL(x0 - x, y0 + y);
+//        PUTPIXEL(x0 - x, y0 - y);
+//        PUTPIXEL(x0 - y, y0 - x);
+//        PUTPIXEL(x0 + y, y0 - x);
+//        PUTPIXEL(x0 + x, y0 - y);
+//        
+//        if (err <= 0)
+//        {
+//            y++;
+//            err += dy;
+//            dy += 2;
+//        }
+//        else
+//        {
+//            x--;
+//            dx += 2;
+//            err += dx - (radius << 1);
+//        }
+//    }
+//
+//    return buffer;
+//}
+
 uint32_t* draw_copy(uint32_t x, uint32_t y, uint32_t* src, uint32_t src_w, uint32_t src_h)
 {
-    ASSERT(x >= 0)
-    ASSERT(y >= 0)
-    ASSERT(src != NULL)
-    ASSERT(x + src_w - 1 < buffer_w)
-    ASSERT(y + src_h - 1 < buffer_h)
+    ASSERT(x >= 0);
+    ASSERT(y >= 0);
+    ASSERT(src != NULL);
+    ASSERT(x + src_w - 1 < buffer_w);
+    ASSERT(y + src_h - 1 < buffer_h);
 
     uint32_t src_y, src_x;
     uint32_t dst_y, dst_x;
@@ -220,10 +313,10 @@ uint32_t* draw_copy(uint32_t x, uint32_t y, uint32_t* src, uint32_t src_w, uint3
             switch(src[src_x + src_y * src_w])
             {
                 case PXL_CLEAR:
-                    CLRPIXEL(dst_x, dst_y)
+                    CLRPIXEL(dst_x, dst_y);
                     break;
                 case PXL_PUT:
-                    PUTPIXEL(dst_x, dst_y)
+                    PUTPIXEL(dst_x, dst_y);
                     break;
                 case PXL_KEEP:
                     break;

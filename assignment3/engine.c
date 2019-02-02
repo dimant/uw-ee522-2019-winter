@@ -3,6 +3,11 @@
 
 #include "assert-macros.h"
 #include "type-macros.h"
+#include "draw.h"
+#include "memgpio.h"
+#include "delay.h"
+
+#define PXL_DELAY 1
 
 //static uint32_t** stars;
 //static uint32_t   nstars;
@@ -44,24 +49,34 @@ uint32_t eng_collide(
     return FALSE;
 }
 
-uint32_t eng_step()
+void eng_render(uint32_t* buffer)
+{
+    for(uint32_t y = 0; y < Y_MAX; y++)
+    {
+        for(uint32_t x = 0; x < X_MAX; x++)
+        {
+            if(buffer[x + y * Y_MAX])
+            {
+                mgp_xy_set(x, y);
+                delay(PXL_DELAY);
+                mgp_xy_clr(x, y);
+            }
+        }
+    }
+}
+
+void eng_step()
 {
     // move stars
 
     // move ship
 
     // check death
-
-    return 0;
 }
 
-uint32_t eng_start()
+void eng_start()
 {
     while(1)
     {
-        eng_step();
-        // sleep some time;
     }
-
-    return 0;
 }
