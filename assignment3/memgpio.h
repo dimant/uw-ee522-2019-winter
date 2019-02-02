@@ -19,7 +19,9 @@ int mgp_init();
 void mgp_terminate();
 void mgp_setMode(uint32_t pin, uint32_t mode);
 void mgp_xy_set(uint32_t x, uint32_t y);
+void mgp_xy_clr(uint32_t x, uint32_t y);
 void mgp_bits_set(uint32_t bits);
 void mgp_bits_clr(uint32_t bits);
+void mgp_blinkLED(uint32_t pin);
 
 #endif

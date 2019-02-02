@@ -78,6 +78,11 @@ void mgp_xy_set(uint32_t x, uint32_t y)
     GPIO_OFFSET_PTR(gpio, GPSET0) = XY_TO_GPIO(x, y);
 }
 
+void mgp_xy_clr(uint32_t x, uint32_t y)
+{
+    GPIO_OFFSET_PTR(gpio, GPCLR0) = XY_TO_GPIO(x, y);
+}
+
 void mgp_bits_set(uint32_t bits)
 {
     GPIO_OFFSET_PTR(gpio, GPSET0) = bits;
@@ -88,15 +93,9 @@ void mgp_bits_clr(uint32_t bits)
     GPIO_OFFSET_PTR(gpio, GPCLR0) = bits;
 }
 
-int mgp_blinkLED(char pin)
+void  mgp_blinkLED(uint32_t pin)
 {
-    int result = mgp_init();
-    IF_THEN_FAIL(0 != result, FAIL_CODE, "Failed initializing memgpio library.");
-
     GPIO_OFFSET_PTR(gpio, GPSET0) = (uint32_t)(1 << pin);
-    for (int x = 0; x < 500; x++) {}  // blocking delay hack using a simple loop
+    for (int x = 0; x < 50; x++) {}  // blocking delay hack using a simple loop
     GPIO_OFFSET_PTR(gpio, GPCLR0) = (uint32_t)(1 << pin);
-
-    mgp_terminate();
-    return 0;
 }
