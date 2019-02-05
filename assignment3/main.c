@@ -3,7 +3,7 @@
 #include <alsa/pcm.h>
 #include <math.h>
 
-#define SAMPLE_RATE 96000
+#define SAMPLE_RATE 16000
 #define CHANNELS 2
 
 #ifndef M_PI
@@ -18,7 +18,7 @@ int main(void)
     int err;
     int k;
 
-    int f = 440;                //frequency
+    int f = 100;                //frequency
     int fs = SAMPLE_RATE;             //sampling frequency
 
     snd_pcm_t *handle;
