@@ -1,7 +1,10 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <stdint.h>
 
 #include <alsa/asoundlib.h>
