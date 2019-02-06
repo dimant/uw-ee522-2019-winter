@@ -290,6 +290,7 @@ void tracker_play(audio_device_t* device, track_row_t* track)
     buffer_device.buffer = (float*)malloc(sizeof(float) * device->sampling_rate);;
 
     int32_t remaining = (int32_t) device->sampling_rate;
+    uint32_t delta = 0;
     float* cursor = device->buffer;
 
     for(track_row_t* cur = track; cur != NULL; cur = cur->next)
@@ -297,8 +298,6 @@ void tracker_play(audio_device_t* device, track_row_t* track)
         uint32_t channel = (uint32_t) atoi(cur->cols[COL_CHANNEL]);
         uint32_t samples = SAMPLES((uint32_t) atoi(cur->cols[COL_DURATION]), device->sampling_rate);
         uint32_t freq = freqs[note_to_idx(cur->cols[COL_NOTE])];
-
-        printf("%s %i %i %i\n", cur->cols[COL_FORM], channel, samples, freq);
 
         if(0 == strcmp("saw", cur->cols[COL_FORM]))
         {
@@ -331,12 +330,17 @@ void tracker_play(audio_device_t* device, track_row_t* track)
         else
         {
             // write first part
-            memcpy(device->buffer, buffer_device.buffer, (uint32_t) remaining);
+            memcpy(cursor, buffer_device.buffer, (uint32_t) remaining);
             audio_write(device);
+            memset(device->buffer, 0, device->sampling_rate * sizeof(float));
 
-            memcpy(device->buffer, buffer_device.buffer + remaining, samples - (uint32_t) remaining);
-            remaining = (int32_t)(device->sampling_rate - (samples - (uint32_t) remaining));
-            cursor = device->buffer + (samples - (uint32_t) remaining);
+            delta = (samples - (uint32_t)remaining);
+
+            cursor = device->buffer;
+            memcpy(cursor, buffer_device.buffer + remaining, delta);
+
+            remaining = (int32_t)(device->sampling_rate - delta);
+            cursor += delta;
         }
 
         ASSERT(remaining >= 0);
