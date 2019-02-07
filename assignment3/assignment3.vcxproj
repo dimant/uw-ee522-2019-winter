@@ -84,6 +84,7 @@
     <ClCompile Include="delay.c" />
     <ClCompile Include="draw.c" />
     <ClCompile Include="engine.c" />
+    <ClCompile Include="joystick.c" />
     <ClCompile Include="memgpio.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="tracker.c" />
@@ -95,6 +96,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="drawing-macros.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="joystick.h" />
     <ClInclude Include="memgpio.h" />
     <ClInclude Include="error-macros.h" />
     <ClInclude Include="tracker.h" />
