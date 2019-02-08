@@ -14,47 +14,57 @@
 #    define M_PI 3.14159265358979323846
 #endif
 
-typedef struct audio_devices_t {
+typedef struct audio_t {
     snd_pcm_t* handle;
     float* buffer;
     uint32_t sampling_rate;
     uint32_t channels;
-} audio_device_t;
 
-audio_device_t* audio_init(uint32_t sampling_rate, uint32_t channels);
+    // private
+    int32_t _queue_size;
+    int32_t _queue_in;
+    int32_t _queue_out;
+} audio_t;
 
-void audio_terminate(audio_device_t* device);
+void audio_init(
+    audio_t* device,
+    const char* name,
+    uint32_t sampling_rate,
+    uint32_t channels);
 
-void audio_write(audio_device_t* device);
+void audio_terminate(audio_t* device);
+
+void audio_write(audio_t* device);
+
+void audio_interleave(
+    float* output,
+    float* left_channel,
+    float* right_channel,
+    uint32_t samples);
 
 void audio_saw(
-    audio_device_t* device,
-    uint32_t    channel,
+    float*      buffer,
     uint32_t    samples,
-    uint32_t    freq);
+    uint32_t    period);
 
 void audio_triangle(
-    audio_device_t* device,
-    uint32_t    channel,
+    float*      buffer,
     uint32_t    samples,
-    uint32_t    freq);
+    uint32_t    period);
 
 void audio_sin(
-    audio_device_t* device,
-    uint32_t    channel,
+    float*      buffer,
     uint32_t    samples,
-    uint32_t    freq);
+    float       period);
 
 void audio_pulse(
-    audio_device_t* device,
-    uint32_t    channel,
+    float*      buffer,
     uint32_t    samples,
-    uint32_t    freq,
+    uint32_t    period,
     uint32_t    duty);
 
 void audio_noise(
-    audio_device_t* device,
-    uint32_t    channel,
+    float*      buffer,
     uint32_t    samples);
 
 #endif

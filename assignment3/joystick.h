@@ -24,15 +24,13 @@
 typedef struct joystics_t
 {
     int fd;
-    uint32_t* axes;
     uint32_t naxes;
-    uint32_t* buttons;
     uint32_t nbuttons;
     char* name;
 } joystick_t;
 
-void joystick_init(joystick_t* joystick, const char* name);
-uint32_t joystick_read(joystick_t* joystick);
-void joystick_terminate(joystick_t* joystick);
+void joystick_init(joystick_t* device, const char* name);
+uint32_t joystick_read(joystick_t* device);
+void joystick_terminate(joystick_t* device);
 
 #endif
