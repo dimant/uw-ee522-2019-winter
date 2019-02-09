@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "queue.h"
 #include "tracker.h"
 #include "audio.h"
 #include "assert-macros.h"
@@ -23,8 +24,6 @@
 #define COL_DURATION    2
 #define COL_NOTE        3
 #define COL_DUTY        4
-
-#define SAMPLES(d, s) (uint32_t)((uint32_t)d * (uint32_t)s/(uint32_t)1000)
 
 // Track
 // 
@@ -156,7 +155,7 @@ const uint32_t freqs[] = {
     987
 };
 
-track_row_t* create_row()
+static track_row_t* tracker_row_create()
 {
     track_row_t* row = (track_row_t*) malloc(sizeof(row));
     row->cols = (char**) malloc(sizeof(char*) * MAX_COL);
@@ -171,7 +170,7 @@ track_row_t* create_row()
     return row;
 }
 
-void destroy_row(track_row_t* row)
+static void tracker_row_delete(track_row_t* row)
 {
     for(uint32_t i = 0; i < MAX_COL; i++)
     {
@@ -183,7 +182,7 @@ void destroy_row(track_row_t* row)
 }
 
 
-FILE* tracker_open(const char* fname)
+static FILE* tracker_open(const char* fname)
 {
     FILE* file = fopen(fname, "r");
 
@@ -192,17 +191,17 @@ FILE* tracker_open(const char* fname)
     return file;
 }
 
-void tracker_close(FILE* file)
+static void tracker_close(FILE* file)
 {
     int result = fclose(file);
 
     ASSERT(0 == result);
 }
 
-track_row_t* tracker_tokenize(char* string, const char delim)
+static track_row_t* tracker_tokenize(char* string, const char delim)
 {
     char* cursor = string;
-    track_row_t* row = create_row();
+    track_row_t* row = tracker_row_create();
     uint32_t col = 0;
     uint32_t i = 0;
 
@@ -233,10 +232,10 @@ track_row_t* tracker_load(const char* fname)
     char string[MAX_LINE];
     char* status = NULL;
 
-    track_row_t* first_row = create_row();
+    track_row_t* first_row = tracker_row_create();
     track_row_t* cur_row = first_row;
     uint32_t len;
-    
+
     while(1)
     {
         status = fgets(string, MAX_LINE, file);
@@ -256,19 +255,19 @@ track_row_t* tracker_load(const char* fname)
         {
             break;
         }
-        
+
         cur_row->next = tracker_tokenize(string, DELIM);
         cur_row = cur_row->next;
     }
 
     tracker_close(file);
 
-    destroy_row(first_row);
+    tracker_row_delete(first_row);
 
     return first_row->next;
 }
 
-uint32_t note_to_idx(char* note)
+static uint32_t note_to_idx(char* note)
 {
     uint32_t idx = 0;
 
@@ -282,41 +281,47 @@ uint32_t note_to_idx(char* note)
     return 0;
 }
 
+void* tracker_produce(void* arg)
+{
+    float* buffer = (float*) malloc(sizeof(float) * device->_buffer_size);
+
+    for(track_row_t* cur = track; cur != NULL; cur = cur->next)
+    {
+        uint32_t channel = (uint32_t) atoi(cur->cols[COL_CHANNEL]);
+        uint32_t samples = 1000 * device->frames * (uint32_t) atoi(cur->cols[COL_DURATION]) / (device->period_time);
+        uint32_t freq = freqs[note_to_idx(cur->cols[COL_NOTE])];
+
+        if(0 == strcmp("saw", cur->cols[COL_FORM]))
+        {
+            audio_saw(buffer, channel, samples, freq); 
+        }
+        else if(0 == strcmp("triangle", cur->cols[COL_FORM]))
+        {
+            audio_triangle(buffer, channel, samples, freq); 
+        }
+        else if(0 == strcmp("pulse", cur->cols[COL_FORM]))
+        {
+            uint32_t duty = (uint32_t) atoi(cur->cols[COL_DUTY]);
+            audio_pulse(buffer, channel, samples, freq, duty); 
+        }
+        else if(0 == strcmp("sin", cur->cols[COL_FORM]))
+        {
+            audio_sin(buffer, channel, samples, freq); 
+        }
+        else if(0 == strcmp("noise", cur->cols[COL_FORM]))
+        {
+            audio_noise(buffer, channel, samples); 
+        }
+
+        queue_put(device->queue, buffer, samples);
+    }
+}
+
+void* tracker_consume(void* arg)
+{
+    audio_write(device);
+}
+
 void tracker_play(audio_t* device, track_row_t* track)
 {
-//    audio_device_t buffer_device;
-//    buffer_device.channels = device->channels;
-//    buffer_device.sampling_rate = device->sampling_rate;
-//    buffer_device.buffer = (float*)malloc(sizeof(float) * device->sampling_rate);;
-
-//    for(track_row_t* cur = track; cur != NULL; cur = cur->next)
-//    {
-//        uint32_t channel = (uint32_t) atoi(cur->cols[COL_CHANNEL]);
-//        uint32_t samples = SAMPLES((uint32_t) atoi(cur->cols[COL_DURATION]), device->sampling_rate);
-//        uint32_t freq = freqs[note_to_idx(cur->cols[COL_NOTE])];
-//
-//        if(0 == strcmp("saw", cur->cols[COL_FORM]))
-//        {
-//            audio_saw(&buffer_device, channel, samples, freq); 
-//        }
-//        else if(0 == strcmp("triangle", cur->cols[COL_FORM]))
-//        {
-//            audio_triangle(&buffer_device, channel, samples, freq); 
-//        }
-//        else if(0 == strcmp("pulse", cur->cols[COL_FORM]))
-//        {
-//            uint32_t duty = (uint32_t) atoi(cur->cols[COL_DUTY]);
-//            audio_pulse(&buffer_device, channel, samples, freq, duty); 
-//        }
-//        else if(0 == strcmp("sin", cur->cols[COL_FORM]))
-//        {
-//            audio_sin(&buffer_device, channel, samples, freq); 
-//        }
-//        else if(0 == strcmp("noise", cur->cols[COL_FORM]))
-//        {
-//            audio_noise(&buffer_device, channel, samples); 
-//        }
-//    }
-//
-//    free(buffer_device.buffer);
 }
