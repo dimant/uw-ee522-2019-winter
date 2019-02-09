@@ -81,9 +81,9 @@ const char * test_get()
 const char * test_wrap() 
 {
     queue_t queue;
-    float input1[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
-    float input2[] = { 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f};
-    float output[] = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
+    float input1[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f };
+    float input2[] = { 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f };
+    float output[] = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f };
     uint32_t result = 0;
 
     queue_create(&queue, 10);
