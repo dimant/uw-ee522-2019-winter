@@ -5,26 +5,20 @@
 #include "audio.h"
 #include "assert-macros.h"
 
-#define BUFFER_CAPACITY 2
-
 void audio_init(audio_t* device, const char* name, uint32_t sampling_rate, uint32_t channels)
 {
     ASSERT(device != NULL);
+    ASSERT(sampling_rate > 0);
+    ASSERT(channels > 0);
 
     int err;
 
+    queue_create(&(device->buffer), 2 * channels * sampling_rate);
     device->sampling_rate = sampling_rate;
     device->channels = channels;
 
     err = snd_pcm_open(&(device->handle), name, SND_PCM_STREAM_PLAYBACK, 0);
     ASSERT(err >= 0);
-
-    device->_queue_size = BUFFER_CAPACITY * sampling_rate * channels;
-    device->buffer = (float*) malloc(sizeof(float) * device->_queue_size);
-    memset(device->buffer, 0, sizeof(float) * device->_queue_size);
-
-    device->_queue_in = NULL;
-    device->_queue_out = NULL;
 
     err = snd_pcm_set_params(device->handle,
                     SND_PCM_FORMAT_FLOAT,
@@ -37,23 +31,15 @@ void audio_init(audio_t* device, const char* name, uint32_t sampling_rate, uint3
     ASSERT(err >= 0);
 }
 
-
 void audio_write(audio_t* device)
 {
-    // snd_pcm_writei(device->handle, device->buffer, device->sampling_rate);
-}
-
-void audio_play(audio_t* device)
-{
-
+    //snd_pcm_writei(device->handle, device->buffer, device->sampling_rate);
 }
 
 void audio_terminate(audio_t* device)
 {
     snd_pcm_close(device->handle);
-    free(device->buffer);
-    device->_queue_in = 0;
-    device->_queue_out = 0;
+    queue_delete(&(device->buffer));
 }
 
 void audio_interleave(float* output, float* left_channel, float* right_channel, uint32_t samples)

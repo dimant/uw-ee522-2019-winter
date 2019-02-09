@@ -10,20 +10,17 @@
 #include <alsa/asoundlib.h>
 #include <alsa/pcm.h>
 
+#include "queue.h"
+
 #ifndef M_PI
 #    define M_PI 3.14159265358979323846
 #endif
 
 typedef struct audio_t {
-    snd_pcm_t* handle;
-    float* buffer;
-    uint32_t sampling_rate;
-    uint32_t channels;
-
-    // private
-    int32_t _queue_size;
-    int32_t _queue_in;
-    int32_t _queue_out;
+    snd_pcm_t*  handle;
+    uint32_t    sampling_rate;
+    uint32_t    channels;
+    queue_t     buffer;
 } audio_t;
 
 void audio_init(

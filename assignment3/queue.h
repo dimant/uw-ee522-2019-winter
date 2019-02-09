@@ -1,5 +1,5 @@
-#ifndef CIRCULAR_BUFFER_H
-#define CIRCULAR_BUFFER_H
+#ifndef QUEUE_H
+#define QUEUE_H
 
 #include <stdint.h>
 
