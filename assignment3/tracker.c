@@ -20,18 +20,17 @@
 #define DELIM       ','
 
 #define COL_FORM        0
-#define COL_CHANNEL     1
-#define COL_DURATION    2
-#define COL_NOTE        3
-#define COL_DUTY        4
+#define COL_DURATION    1
+#define COL_NOTE        2
+#define COL_DUTY        3
 
 // Track
 // 
-// Form         Channel     Duration    Note    Duty Cycle
+// Form         Duration    Note    Duty Cycle
 // ---------------------------------------------------------
-// saw          0           500ms       C2-B2
-// triangle     1                       C3-B3
-// pulse                                C4-B4   0-100
+// saw          5periods    C2-B2
+// triangle                 C3-B3
+// pulse                    C4-B4   0-100
 // sin
 // noise
 
@@ -281,47 +280,50 @@ static uint32_t note_to_idx(char* note)
     return 0;
 }
 
-void* tracker_produce(void* arg)
-{
-    float* buffer = (float*) malloc(sizeof(float) * device->_buffer_size);
 
-    for(track_row_t* cur = track; cur != NULL; cur = cur->next)
+void tracker_get_period(tracker_state_t* state, float* buffer, uint32_t samples)
+{
+    char** cols = state->current_row->cols;
+    uint32_t periods = (uint32_t)atoi(cols[COL_DURATION]);
+
+    if (state->current_period >= periods)
     {
-        uint32_t channel = (uint32_t) atoi(cur->cols[COL_CHANNEL]);
-        uint32_t samples = 1000 * device->frames * (uint32_t) atoi(cur->cols[COL_DURATION]) / (device->period_time);
-        uint32_t freq = freqs[note_to_idx(cur->cols[COL_NOTE])];
-
-        if(0 == strcmp("saw", cur->cols[COL_FORM]))
+        if (state->current_row->next != NULL)
         {
-            audio_saw(buffer, channel, samples, freq); 
+            state->current_row = state->current_row->next;
         }
-        else if(0 == strcmp("triangle", cur->cols[COL_FORM]))
+        else
         {
-            audio_triangle(buffer, channel, samples, freq); 
-        }
-        else if(0 == strcmp("pulse", cur->cols[COL_FORM]))
-        {
-            uint32_t duty = (uint32_t) atoi(cur->cols[COL_DUTY]);
-            audio_pulse(buffer, channel, samples, freq, duty); 
-        }
-        else if(0 == strcmp("sin", cur->cols[COL_FORM]))
-        {
-            audio_sin(buffer, channel, samples, freq); 
-        }
-        else if(0 == strcmp("noise", cur->cols[COL_FORM]))
-        {
-            audio_noise(buffer, channel, samples); 
+            state->current_row = state->first_row;
         }
 
-        queue_put(device->queue, buffer, samples);
+        periods = (uint32_t)atoi(cols[COL_DURATION]);
+        state->current_period = 0;
     }
-}
 
-void* tracker_consume(void* arg)
-{
-    audio_write(device);
-}
+    uint32_t freq = freqs[note_to_idx(cols[COL_NOTE])];
 
-void tracker_play(audio_t* device, track_row_t* track)
-{
+    if (0 == strcmp("saw", state->current_row->cols[COL_FORM]))
+    {
+        audio_saw(buffer, samples, freq, state->current_period);
+    }
+    else if (0 == strcmp("triangle", state->current_row->cols[COL_FORM]))
+    {
+        audio_triangle(buffer, samples, freq, state->current_period);
+    }
+    else if (0 == strcmp("pulse", state->current_row->cols[COL_FORM]))
+    {
+        uint32_t duty = (uint32_t)atoi(state->current_row->cols[COL_DUTY]);
+        audio_pulse(buffer, samples, freq, state->current_period, duty);
+    }
+    else if (0 == strcmp("sin", state->current_row->cols[COL_FORM]))
+    {
+        audio_sin(buffer, samples, freq, state->current_period);
+    }
+    else if (0 == strcmp("noise", state->current_row->cols[COL_FORM]))
+    {
+        audio_noise(buffer, samples);
+    }
+
+    state->current_period++;
 }

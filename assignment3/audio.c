@@ -111,7 +111,11 @@ void audio_terminate(audio_t* device)
     queue_delete(&device->queue);
 }
 
-void audio_interleave(float* output, float* left_channel, float* right_channel, uint32_t samples)
+void audio_interleave(
+    float* output,
+    float* left_channel,
+    float* right_channel,
+    uint32_t samples)
 {
     for(uint32_t s = 0; s < samples; s++)
     {
@@ -120,40 +124,58 @@ void audio_interleave(float* output, float* left_channel, float* right_channel, 
     }
 }
 
+void audio_add(
+    float*      result,
+    float*      buffer,
+    uint32_t    samples,
+    float       ratio)
+{
+    for (uint32_t s = 0; s < samples; s++)
+    {
+        result[s] = result[s] * ratio + (1.0f - ratio) * buffer[s];
+    }
+}
+
 void audio_saw(
         float*      buffer,
         uint32_t    samples,
+        uint32_t    freq,
         uint32_t    period)
 { 
-    float step = 1.0f / (float) period;
+    float step = 1.0f / (float)freq;
+    uint32_t offset = period * samples % freq;
 
-    for(uint32_t s = 0; s < samples; s++)
+    for(uint32_t s = offset; s < samples + offset; s++)
     {
-        buffer[s] = step * (float) (s % period); 
+        buffer[s] = step * (float) (s % freq);
     }
 }
 
 void audio_triangle(
         float*      buffer,
         uint32_t    samples,
+        uint32_t    freq,
         uint32_t    period)
 {
-    float step = 1.0f / (float) (period >> 1);
+    float step = 1.0f / (float) (freq >> 1);
+    uint32_t offset = period * samples % freq;
 
-    for(uint32_t s = 0; s < samples; s++)
+    for(uint32_t s = offset; s < samples + offset; s++)
     {
-        buffer[s] = (float) fabs(step * (float) (s % period) - 1.0f);
+        buffer[s] = (float) fabs(step * (float) (s % freq) - 1.0f);
     }
 }
 
 void audio_sin(
         float*      buffer,
         uint32_t    samples,
-        float       period)
+        uint32_t    freq,
+        uint32_t    period)
 {
-    float fact = 2.0f * (float)M_PI * period; 
+    float fact = 2.0f * (float)M_PI * (float) freq;
+    uint32_t offset = period * samples % freq;
 
-    for(uint32_t s = 0; s < samples; s++)
+    for(uint32_t s = offset; s < samples + offset; s++)
     {
         buffer[s] = (float) sinf(fact * (float) s); 
     }
@@ -162,15 +184,17 @@ void audio_sin(
 void audio_pulse(
         float*      buffer,
         uint32_t    samples,
+        uint32_t    freq,
         uint32_t    period,
         uint32_t    duty)
 {
     float _duty = ((float) duty) / 100.0f;
-    uint32_t sduty = (uint32_t) ((float) period * _duty);
+    uint32_t offset = period * samples % freq;
+    uint32_t sduty = (uint32_t) ((float)freq * _duty);
 
-    for(uint32_t s = 0; s < samples; s++)
+    for(uint32_t s = offset; s < samples + offset; s++)
     {
-        if(s % period > sduty)
+        if(s % freq > sduty)
         {
             buffer[s] = 0.0f;
         }

@@ -34,29 +34,39 @@ void audio_terminate(audio_t* device);
 void audio_write(audio_t* device);
 
 void audio_interleave(
-    float* output,
-    float* left_channel,
-    float* right_channel,
-    uint32_t samples);
+    float*      output,
+    float*      left_channel,
+    float*      right_channel,
+    uint32_t    samples);
+
+void audio_add(
+    float*      result,
+    float*      buffer,
+    uint32_t    samples,
+    float       ratio);
 
 void audio_saw(
     float*      buffer,
     uint32_t    samples,
+    uint32_t    freq,
     uint32_t    period);
 
 void audio_triangle(
     float*      buffer,
     uint32_t    samples,
+    uint32_t    freq,
     uint32_t    period);
 
 void audio_sin(
     float*      buffer,
     uint32_t    samples,
-    float       period);
+    uint32_t    freq,
+    uint32_t    period);
 
 void audio_pulse(
     float*      buffer,
     uint32_t    samples,
+    uint32_t    freq,
     uint32_t    period,
     uint32_t    duty);
 
