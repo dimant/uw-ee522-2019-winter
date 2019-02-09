@@ -282,41 +282,41 @@ uint32_t note_to_idx(char* note)
     return 0;
 }
 
-void tracker_play(audio_device_t* device, track_row_t* track)
+void tracker_play(audio_t* device, track_row_t* track)
 {
-    audio_device_t buffer_device;
-    buffer_device.channels = device->channels;
-    buffer_device.sampling_rate = device->sampling_rate;
-    buffer_device.buffer = (float*)malloc(sizeof(float) * device->sampling_rate);;
+//    audio_device_t buffer_device;
+//    buffer_device.channels = device->channels;
+//    buffer_device.sampling_rate = device->sampling_rate;
+//    buffer_device.buffer = (float*)malloc(sizeof(float) * device->sampling_rate);;
 
-    for(track_row_t* cur = track; cur != NULL; cur = cur->next)
-    {
-        uint32_t channel = (uint32_t) atoi(cur->cols[COL_CHANNEL]);
-        uint32_t samples = SAMPLES((uint32_t) atoi(cur->cols[COL_DURATION]), device->sampling_rate);
-        uint32_t freq = freqs[note_to_idx(cur->cols[COL_NOTE])];
-
-        if(0 == strcmp("saw", cur->cols[COL_FORM]))
-        {
-            audio_saw(&buffer_device, channel, samples, freq); 
-        }
-        else if(0 == strcmp("triangle", cur->cols[COL_FORM]))
-        {
-            audio_triangle(&buffer_device, channel, samples, freq); 
-        }
-        else if(0 == strcmp("pulse", cur->cols[COL_FORM]))
-        {
-            uint32_t duty = (uint32_t) atoi(cur->cols[COL_DUTY]);
-            audio_pulse(&buffer_device, channel, samples, freq, duty); 
-        }
-        else if(0 == strcmp("sin", cur->cols[COL_FORM]))
-        {
-            audio_sin(&buffer_device, channel, samples, freq); 
-        }
-        else if(0 == strcmp("noise", cur->cols[COL_FORM]))
-        {
-            audio_noise(&buffer_device, channel, samples); 
-        }
-    }
-
-    free(buffer_device.buffer);
+//    for(track_row_t* cur = track; cur != NULL; cur = cur->next)
+//    {
+//        uint32_t channel = (uint32_t) atoi(cur->cols[COL_CHANNEL]);
+//        uint32_t samples = SAMPLES((uint32_t) atoi(cur->cols[COL_DURATION]), device->sampling_rate);
+//        uint32_t freq = freqs[note_to_idx(cur->cols[COL_NOTE])];
+//
+//        if(0 == strcmp("saw", cur->cols[COL_FORM]))
+//        {
+//            audio_saw(&buffer_device, channel, samples, freq); 
+//        }
+//        else if(0 == strcmp("triangle", cur->cols[COL_FORM]))
+//        {
+//            audio_triangle(&buffer_device, channel, samples, freq); 
+//        }
+//        else if(0 == strcmp("pulse", cur->cols[COL_FORM]))
+//        {
+//            uint32_t duty = (uint32_t) atoi(cur->cols[COL_DUTY]);
+//            audio_pulse(&buffer_device, channel, samples, freq, duty); 
+//        }
+//        else if(0 == strcmp("sin", cur->cols[COL_FORM]))
+//        {
+//            audio_sin(&buffer_device, channel, samples, freq); 
+//        }
+//        else if(0 == strcmp("noise", cur->cols[COL_FORM]))
+//        {
+//            audio_noise(&buffer_device, channel, samples); 
+//        }
+//    }
+//
+//    free(buffer_device.buffer);
 }

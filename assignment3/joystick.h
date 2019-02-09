@@ -17,6 +17,7 @@
 #define JOY_START_UP        11
 #define JOY_SELECT_DOWN     12
 #define JOY_SELECT_UP       12
+#define JOY_NOP             13
 
 #define JOY_DEV0 "/dev/input/js0"
 #define JOY_DEV0 "/dev/input/js0"
