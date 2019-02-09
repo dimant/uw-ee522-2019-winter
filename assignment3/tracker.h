@@ -10,6 +10,6 @@ typedef struct track_rows_t
 } track_row_t;
 
 track_row_t* tracker_load(const char* fname);
-void tracker_play(audio_device_t* device, track_row_t* track);
+void tracker_play(audio_t* device, track_row_t* track);
 
 #endif

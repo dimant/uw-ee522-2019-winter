@@ -1,10 +1,12 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <linux/joystick.h>
 
 #include "joystick.h"
 #include "type-macros.h"
+#include "assert-macros.h"
 
 #define JOY_AXIS_X          0
 #define JOY_AXIS_Y          1
@@ -18,7 +20,7 @@ void joystick_init(joystick_t* device, const char* name)
     ASSERT(device != NULL);
 
     int result = 0;
-    device->fd = open(device, O_RDONLY);
+    device->fd = open(name, O_RDONLY);
     ASSERT(device->fd > -1);
 
     result = fcntl(device->fd, F_SETFL, O_NONBLOCK);
@@ -45,11 +47,11 @@ void joystick_terminate(joystick_t* device)
 
 uint32_t joystick_read(joystick_t* joystick)
 {
-    int result = 0;
+    int err = 0;
     struct js_event js;
 
-    result = read(joystick->fd, &js, sizeof(struct js_event));
-    ASSERT(result > -1);
+    err = read(joystick->fd, &js, sizeof(struct js_event));
+    ASSERT(err >= 0);
 
     switch (js.type & ~JS_EVENT_INIT)
     {
@@ -116,4 +118,6 @@ uint32_t joystick_read(joystick_t* joystick)
     default:
         ASSERT(FALSE);
     }
+
+    return JOY_NOP;
 }
