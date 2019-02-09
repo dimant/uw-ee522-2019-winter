@@ -7,10 +7,10 @@ typedef struct queues_t
 {
     //private
     float* _queue;
-    uint32_t _queue_size;
-    uint32_t _queue_in;
-    uint32_t _queue_out;
-    uint32_t _queue_remaining;
+    uint32_t _size;
+    uint32_t _in;
+    uint32_t _out;
+    uint32_t _remaining;
 } queue_t;
 
 void queue_create(queue_t* queue, uint32_t size);

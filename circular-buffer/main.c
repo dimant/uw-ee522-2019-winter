@@ -7,21 +7,21 @@
 
 int tests_run = 0;
 
-const char * test_queue_create() 
+const char * test_create() 
 {
     queue_t queue;
 
     queue_create(&queue, 10);
 
     mu_assert("queue buffer is NULL", queue._queue != NULL);
-    mu_assert("queue size is not 10", queue._queue_size == 10);
-    mu_assert("queue remaining bytes is not 10", queue._queue_remaining == 10);
-    mu_assert("queue in ptr is not 0", queue._queue_in == 0);
-    mu_assert("queue out ptr is not 0", queue._queue_out == 0);
+    mu_assert("queue size is not 10", queue._size == 10);
+    mu_assert("queue remaining bytes is not 10", queue._remaining == 10);
+    mu_assert("queue in ptr is not 0", queue._in == 0);
+    mu_assert("queue out ptr is not 0", queue._out == 0);
     return 0;
 }
 
-const char * test_queue_delete() 
+const char * test_delete() 
 {
     queue_t queue;
 
@@ -29,14 +29,14 @@ const char * test_queue_delete()
     queue_delete(&queue);
 
     mu_assert("queue buffer is not NULL", queue._queue == NULL);
-    mu_assert("queue size is not 0", queue._queue_size == 0);
-    mu_assert("queue remaining bytes is not 0", queue._queue_remaining == 0);
-    mu_assert("queue in ptr is not 0", queue._queue_in == 0);
-    mu_assert("queue out ptr is not 0", queue._queue_out == 0);
+    mu_assert("queue size is not 0", queue._size == 0);
+    mu_assert("queue remaining bytes is not 0", queue._remaining == 0);
+    mu_assert("queue in ptr is not 0", queue._in == 0);
+    mu_assert("queue out ptr is not 0", queue._out == 0);
     return 0;
 }
 
-const char * test_queue_put() 
+const char * test_put() 
 {
     queue_t queue;
     float data[] = { 1.0f, 2.0f, 3.0f };
@@ -47,15 +47,15 @@ const char * test_queue_put()
     mu_assert("queue[0] !< queue[1]", queue._queue[0] < queue._queue[1]);
     mu_assert("queue[1] !< queue[2]", queue._queue[1] < queue._queue[2]);
 
-    mu_assert("queue remaining bytes is not 7", queue._queue_remaining == 7);
-    mu_assert("queue in ptr is not 3", queue._queue_in == 3);
-    mu_assert("queue out ptr is not 0", queue._queue_out == 0);
+    mu_assert("queue remaining bytes is not 7", queue._remaining == 7);
+    mu_assert("queue in ptr is not 3", queue._in == 3);
+    mu_assert("queue out ptr is not 0", queue._out == 0);
 
     queue_delete(&queue);
     return 0;
 }
 
-const char * test_queue_get() 
+const char * test_get() 
 {
     queue_t queue;
     float input[] = { 1.0f, 2.0f, 3.0f };
@@ -78,7 +78,7 @@ const char * test_queue_get()
     return 0;
 }
 
-const char * test_queue_wrap() 
+const char * test_wrap() 
 {
     queue_t queue;
     float input1[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
@@ -108,11 +108,11 @@ const char * test_queue_wrap()
 }
 
 const char * all_tests() {
-    mu_run_test(test_queue_create);
-    mu_run_test(test_queue_delete);
-    mu_run_test(test_queue_put);
-    mu_run_test(test_queue_get);
-    mu_run_test(test_queue_wrap);
+    mu_run_test(test_create);
+    mu_run_test(test_delete);
+    mu_run_test(test_put);
+    mu_run_test(test_get);
+    mu_run_test(test_wrap);
     return 0;
 }
 

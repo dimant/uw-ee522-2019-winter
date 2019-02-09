@@ -8,78 +8,78 @@ void queue_create(queue_t* queue, uint32_t size)
 {
     queue->_queue = (float*)malloc(sizeof(float) * size);
     memset(queue->_queue, 0, sizeof(float) * size);
-    queue->_queue_size = size;
-    queue->_queue_in = 0;
-    queue->_queue_out = 0;
-    queue->_queue_remaining = queue->_queue_size;
+    queue->_size = size;
+    queue->_in = 0;
+    queue->_out = 0;
+    queue->_remaining = queue->_size;
 }
 
 void queue_delete(queue_t* queue)
 {
     free(queue->_queue);
     queue->_queue = NULL;
-    queue->_queue_size = 0;
-    queue->_queue_in = 0;
-    queue->_queue_out = 0;
-    queue->_queue_remaining = 0;
+    queue->_size = 0;
+    queue->_in = 0;
+    queue->_out = 0;
+    queue->_remaining = 0;
 }
 
 uint32_t queue_put(queue_t* queue, float* input, uint32_t n)
 {
-    if(input == NULL || n == 0 || queue->_queue_remaining == 0)
+    if(input == NULL || n == 0 || queue->_remaining == 0)
     {
         return 0;
     }
 
-    if(n > queue->_queue_remaining)
+    if(n > queue->_remaining)
     {
-        n = (uint32_t) queue->_queue_remaining;
+        n = (uint32_t) queue->_remaining;
     }
 
-    if(n > queue->_queue_size - queue->_queue_in)
+    if(n > queue->_size - queue->_in)
     {
-        uint32_t len = queue->_queue_size - queue->_queue_in;
-        memcpy(queue->_queue + queue->_queue_in, input, sizeof(float) * len);
+        uint32_t len = queue->_size - queue->_in;
+        memcpy(queue->_queue + queue->_in, input, sizeof(float) * len);
         memcpy(queue->_queue, input + len, sizeof(float) * (n - len));
     }
     else
     {
-        memcpy(queue->_queue + queue->_queue_in, input, sizeof(float) * n);
+        memcpy(queue->_queue + queue->_in, input, sizeof(float) * n);
     }
 
-    queue->_queue_in = (queue->_queue_in + n) % queue->_queue_size;
-    queue->_queue_remaining -= n;
+    queue->_in = (queue->_in + n) % queue->_size;
+    queue->_remaining -= n;
   
     return n;
 }
 
 uint32_t queue_get(queue_t* queue, float* output, uint32_t n)
 {
-  if(output == NULL || n == 0 || queue->_queue_remaining == 0)
+  if(output == NULL || n == 0 || queue->_remaining == 0)
   {
     return 0;
   }
 
-  uint32_t available = queue->_queue_size - queue->_queue_remaining;
+  uint32_t available = queue->_size - queue->_remaining;
 
   if(n > available)
   {
     n = available;    
   }
 
-  if(n > queue->_queue_size - queue->_queue_out)
+  if(n > queue->_size - queue->_out)
   {
-    uint32_t len = queue->_queue_size - queue->_queue_out;
-    memcpy(output, queue->_queue + queue->_queue_out, sizeof(float) * len);
+    uint32_t len = queue->_size - queue->_out;
+    memcpy(output, queue->_queue + queue->_out, sizeof(float) * len);
     memcpy(output + len, queue->_queue, sizeof(float) * (n - len));
   }
   else
   {
-    memcpy(output, queue->_queue + queue->_queue_out, sizeof(float) * n);
+    memcpy(output, queue->_queue + queue->_out, sizeof(float) * n);
   }
 
-  queue->_queue_out = (queue->_queue_out + n) % queue->_queue_size;
-  queue->_queue_remaining += n;
+  queue->_out = (queue->_out + n) % queue->_size;
+  queue->_remaining += n;
 
   return n;
 }
