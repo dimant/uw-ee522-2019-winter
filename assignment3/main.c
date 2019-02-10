@@ -1,8 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "audio.h"
+
 int main(int argc, char* argv[])
 {
+    audio_t audio_device;
+
+    audio_device.name = "default";
+    audio_device.sampling_rate = 16000;
+    audio_device.channels = 1;
+
+    audio_init(&audio_device);
+
+    audio_terminate(&audio_device);
+
     return 0;
 }
 

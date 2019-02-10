@@ -19,9 +19,9 @@ typedef struct tracker_states_t
 
 track_row_t* tracker_load(const char* fname);
 
-void tracker_get_period(
-    tracker_state_t* state,
-    float* buffer,
-    uint32_t samples);
+//void tracker_get_period(
+//    tracker_state_t* state,
+//    float* buffer,
+//    uint32_t samples);
 
 #endif

@@ -16,11 +16,10 @@ void audio_init(audio_t* device)
     int err;
     int subunit_direction;
 
-    snd_pcm_t *handle;
     snd_pcm_hw_params_t *params;
 
     err = snd_pcm_open(
-            &handle,
+            &(device->handle),
             device->name,
             SND_PCM_STREAM_PLAYBACK,
             0 // or set to SND_PCM_NONBLOCK
@@ -29,30 +28,30 @@ void audio_init(audio_t* device)
 
     snd_pcm_hw_params_alloca(&params);
 
-    err = snd_pcm_hw_params_any(handle, params);
+    err = snd_pcm_hw_params_any(device->handle, params);
     ASSERT(err >= 0);
 
     err = snd_pcm_hw_params_set_access(
-            handle,
+            device->handle,
             params,
             SND_PCM_ACCESS_RW_INTERLEAVED);
     ASSERT(err >= 0);
 
     err = snd_pcm_hw_params_set_format(
-            handle,
+            device->handle,
             params,
             SND_PCM_FORMAT_FLOAT);
     ASSERT(err >= 0);
 
     err = snd_pcm_hw_params_set_channels(
-            handle,
+            device->handle,
             params,
             device->channels);
     ASSERT(err >= 0);
 
     uint32_t rate = device->sampling_rate;
     err = snd_pcm_hw_params_set_rate_near(
-            handle,
+            device->handle,
             params,
             &rate,
             0);
@@ -61,13 +60,13 @@ void audio_init(audio_t* device)
 
     device->frames = 32;
     err = snd_pcm_hw_params_set_period_size_near(
-            handle,
+            device->handle,
             params,
             &device->frames,
             &subunit_direction);
     ASSERT(err >= 0);
 
-    err = snd_pcm_hw_params(handle, params);
+    err = snd_pcm_hw_params(device->handle, params);
     ASSERT(err >= 0);
 
     err = snd_pcm_hw_params_get_period_size(

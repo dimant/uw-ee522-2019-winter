@@ -266,64 +266,64 @@ track_row_t* tracker_load(const char* fname)
     return first_row->next;
 }
 
-static uint32_t note_to_idx(char* note)
-{
-    uint32_t idx = 0;
+//static uint32_t note_to_idx(char* note)
+//{
+//    uint32_t idx = 0;
+//
+//    for(idx = 0; idx < MAX_NOTES; idx++)
+//    {
+//        if(0 == strcmp(notes[idx], note))
+//            return idx;
+//    }
+//
+//    ASSERT(FALSE);
+//    return 0;
+//}
 
-    for(idx = 0; idx < MAX_NOTES; idx++)
-    {
-        if(0 == strcmp(notes[idx], note))
-            return idx;
-    }
-
-    ASSERT(FALSE);
-    return 0;
-}
-
-
-void tracker_get_period(tracker_state_t* state, float* buffer, uint32_t samples)
-{
-    char** cols = state->current_row->cols;
-    uint32_t periods = (uint32_t)atoi(cols[COL_DURATION]);
-
-    if (state->current_period >= periods)
-    {
-        if (state->current_row->next != NULL)
-        {
-            state->current_row = state->current_row->next;
-        }
-        else
-        {
-            state->current_row = state->first_row;
-        }
-
-        periods = (uint32_t)atoi(cols[COL_DURATION]);
-        state->current_period = 0;
-    }
-
-    uint32_t freq = freqs[note_to_idx(cols[COL_NOTE])];
-
-    if (0 == strcmp("saw", state->current_row->cols[COL_FORM]))
-    {
-        audio_saw(buffer, samples, freq, state->current_period);
-    }
-    else if (0 == strcmp("triangle", state->current_row->cols[COL_FORM]))
-    {
-        audio_triangle(buffer, samples, freq, state->current_period);
-    }
-    else if (0 == strcmp("pulse", state->current_row->cols[COL_FORM]))
-    {
-        uint32_t duty = (uint32_t)atoi(state->current_row->cols[COL_DUTY]);
-        audio_pulse(buffer, samples, freq, state->current_period, duty);
-    }
-    else if (0 == strcmp("sin", state->current_row->cols[COL_FORM]))
-    {
-        audio_sin(buffer, samples, freq, state->current_period);
-    }
-    else if (0 == strcmp("noise", state->current_row->cols[COL_FORM]))
-    {
-        audio_noise(buffer, samples);
-    }
-
-    state->current_period++;
-}
+//
+//void tracker_get_period(tracker_state_t* state, float* buffer, uint32_t samples)
+//{
+//    char** cols = state->current_row->cols;
+//    uint32_t periods = (uint32_t)atoi(cols[COL_DURATION]);
+//
+//    if (state->current_period >= periods)
+//    {
+//        if (state->current_row->next != NULL)
+//        {
+//            state->current_row = state->current_row->next;
+//        }
+//        else
+//        {
+//            state->current_row = state->first_row;
+//        }
+//
+//        periods = (uint32_t)atoi(cols[COL_DURATION]);
+//        state->current_period = 0;
+//    }
+//
+//    uint32_t freq = freqs[note_to_idx(cols[COL_NOTE])];
+//
+//    if (0 == strcmp("saw", state->current_row->cols[COL_FORM]))
+//    {
+//        audio_saw(buffer, samples, freq, state->current_period);
+//    }
+//    else if (0 == strcmp("triangle", state->current_row->cols[COL_FORM]))
+//    {
+//        audio_triangle(buffer, samples, freq, state->current_period);
+//    }
+//    else if (0 == strcmp("pulse", state->current_row->cols[COL_FORM]))
+//    {
+//        uint32_t duty = (uint32_t)atoi(state->current_row->cols[COL_DUTY]);
+//        audio_pulse(buffer, samples, freq, state->current_period, duty);
+//    }
+//    else if (0 == strcmp("sin", state->current_row->cols[COL_FORM]))
+//    {
+//        audio_sin(buffer, samples, freq, state->current_period);
+//    }
+//    else if (0 == strcmp("noise", state->current_row->cols[COL_FORM]))
+//    {
+//        audio_noise(buffer, samples);
+//    }
+//
+//    state->current_period++;
+//}
