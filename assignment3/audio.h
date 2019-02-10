@@ -51,12 +51,12 @@ void audio_saw(
     uint32_t    period,
     uint32_t    chunk);
 
-//void audio_triangle(
-//    float*      buffer,
-//    uint32_t    samples,
-//    uint32_t    freq,
-//    uint32_t    period);
-//
+void audio_triangle(
+    float*      buffer,
+    uint32_t    samples,
+    uint32_t    period,
+    uint32_t    chunk);
+
 //void audio_sin(
 //    float*      buffer,
 //    uint32_t    samples,

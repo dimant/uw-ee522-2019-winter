@@ -144,21 +144,21 @@ void audio_saw(
     }
 }
 
-//void audio_triangle(
-//        float*      buffer,
-//        uint32_t    samples,
-//        uint32_t    freq,
-//        uint32_t    period)
-//{
-//    float step = 1.0f / (float) (freq >> 1);
-//    uint32_t offset = period * samples % freq;
-//
-//    for(uint32_t s = offset; s < samples + offset; s++)
-//    {
-//        buffer[s] = (float) fabs(step * (float) (s % freq) - 1.0f);
-//    }
-//}
-//
+void audio_triangle(
+        float*      buffer,
+        uint32_t    samples,
+        uint32_t    period,
+        uint32_t    chunk)
+{
+    float step = 1.0f / (float)(period >> 1);
+    uint32_t offset = chunk * samples % period;
+
+    for(uint32_t s = offset; s < samples + offset; s++)
+    {
+        buffer[s] = (float) fabs(step * (float) (s % period) - 1.0f);
+    }
+}
+
 //void audio_sin(
 //        float*      buffer,
 //        uint32_t    samples,
