@@ -22,16 +22,16 @@ typedef struct audio_t {
     const char*         name;
     uint32_t            sampling_rate;
     uint32_t            channels;
-    queue_t             queue;
-    float*              _buffer;
-    uint32_t            _buffer_size;
 } audio_t;
 
 void audio_init(audio_t* device);
 
 void audio_terminate(audio_t* device);
 
-void audio_write(audio_t* device);
+void audio_write(
+    snd_pcm_t* handle,
+    float* buffer,
+    uint32_t frames);
 
 void audio_interleave(
     float*      output,

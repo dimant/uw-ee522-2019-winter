@@ -76,13 +76,6 @@ void audio_init(audio_t* device)
             &subunit_direction);
     ASSERT(err >= 0);
 
-    // allocate enough space for two back buffers
-    device->_buffer_size = device->frames * device->channels; 
-    uint32_t queue_size = 2 * device->_buffer_size;
-    queue_create(&device->queue, queue_size);
-
-    device->_buffer = (float*) malloc(sizeof(float) * device->_buffer_size);
-
     // period time in micro-seconds
     uint32_t period_time;
     err = snd_pcm_hw_params_get_period_time(
@@ -92,15 +85,17 @@ void audio_init(audio_t* device)
     ASSERT(err >= 0);
 }
 
-void audio_write(audio_t* device)
+void audio_write(
+    snd_pcm_t* handle,
+    float* buffer,
+    uint32_t frames)
 {
-    uint32_t n = queue_get(&device->queue, device->_buffer, device->_buffer_size);
-    snd_pcm_sframes_t written_frames = snd_pcm_writei(device->handle, device->_buffer, n / device->channels);
+    snd_pcm_sframes_t written_frames = snd_pcm_writei(handle, buffer, frames);
     ASSERT(written_frames >= 0);
     if(written_frames == -EPIPE)
     {
         /* EPIPE means underrun */
-        snd_pcm_prepare(device->handle);
+        snd_pcm_prepare(handle);
     }
 }
 
@@ -108,7 +103,6 @@ void audio_terminate(audio_t* device)
 {
     snd_pcm_drain(device->handle);
     snd_pcm_close(device->handle);
-    queue_delete(&device->queue);
 }
 
 void audio_interleave(
