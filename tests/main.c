@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #include "minunit.h"
 
 #include "queue.h"
+#include "audio.h"
+
+#define epsilon 0.000001
+#define FCOMP(x, y) (fabs(x - y) < epsilon)
 
 int tests_run = 0;
 
@@ -18,7 +23,7 @@ const char * test_create()
     mu_assert("queue remaining bytes is not 10", queue._remaining == 10);
     mu_assert("queue in ptr is not 0", queue._in == 0);
     mu_assert("queue out ptr is not 0", queue._out == 0);
-    return 0;
+    return NULL;
 }
 
 const char * test_delete() 
@@ -33,7 +38,7 @@ const char * test_delete()
     mu_assert("queue remaining bytes is not 0", queue._remaining == 0);
     mu_assert("queue in ptr is not 0", queue._in == 0);
     mu_assert("queue out ptr is not 0", queue._out == 0);
-    return 0;
+    return NULL;
 }
 
 const char * test_put() 
@@ -52,7 +57,7 @@ const char * test_put()
     mu_assert("queue out ptr is not 0", queue._out == 0);
 
     queue_delete(&queue);
-    return 0;
+    return NULL;
 }
 
 const char * test_get() 
@@ -75,7 +80,7 @@ const char * test_get()
     mu_assert("output[2] < 0", output[2] > -0.5f);
 
     queue_delete(&queue);
-    return 0;
+    return NULL;
 }
 
 const char * test_wrap() 
@@ -104,8 +109,28 @@ const char * test_wrap()
     mu_assert("output[2] != 9.0f", fabs(output[2] - 9.0f) < 0.1);
 
     queue_delete(&queue);
-    return 0;
+    return NULL;
 }
+
+const char* test_audio_pulse()
+{
+    const uint32_t buffer_size = 30;
+    const uint32_t samples = 11;
+    const uint32_t period = 7;
+
+    float buffer[buffer_size];
+
+    memset(buffer, 0, sizeof(float) * buffer_size);
+
+    audio_pulse(buffer, samples, period, 0, 50);
+    audio_pulse(buffer, samples, period, 1, 50);
+
+    mu_assert("buffer[0] != 0.0f", FCOMP(buffer[0], 0.0f));
+    mu_assert("buffer[10] != 1.0f", FCOMP(buffer[10], 1.0f));
+
+    return NULL;
+}
+
 
 const char * all_tests() {
     mu_run_test(test_create);
@@ -113,13 +138,14 @@ const char * all_tests() {
     mu_run_test(test_put);
     mu_run_test(test_get);
     mu_run_test(test_wrap);
-    return 0;
+    mu_run_test(test_audio_pulse);
+    return NULL;
 }
 
 int main(int argc, char* argv[])
 {
     const char *result = all_tests();
-    if (result != 0) {
+    if (result != NULL) {
         printf("%s\n", result);
     }
     else {
@@ -127,5 +153,5 @@ int main(int argc, char* argv[])
     }
     printf("Tests run: %d\n", tests_run);
 
-    return result != 0;
+    return result != NULL;
 }

@@ -18,10 +18,20 @@
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="audio.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="queue.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="audio.h" />
+    <ClInclude Include="minunit.h" />
+    <ClInclude Include="queue.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4a5df25d-3a41-4ded-98af-933ff6fa28cc}</ProjectGuid>
+    <ProjectGuid>{eda7609a-8f9f-4f87-9646-1d37b24244bc}</ProjectGuid>
     <Keyword>Linux</Keyword>
-    <RootNamespace>circular_buffer</RootNamespace>
+    <RootNamespace>tests</RootNamespace>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <ApplicationType>Linux</ApplicationType>
     <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
@@ -46,10 +56,15 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <RemoteCCompileToolExe>gcc</RemoteCCompileToolExe>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <RemoteCCompileToolExe>gcc</RemoteCCompileToolExe>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
-      <LibraryDependencies>
-      </LibraryDependencies>
+      <LibraryDependencies>m</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>
@@ -60,8 +75,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <Link>
-      <LibraryDependencies>
-      </LibraryDependencies>
+      <LibraryDependencies>m</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>
@@ -69,16 +83,19 @@
       <Message>
       </Message>
     </RemotePostBuildEvent>
+    <ClCompile>
+      <CAdditionalWarning>switch;no-deprecated-declarations;empty-body;return-type;parentheses;no-pointer-sign;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CAdditionalWarning)</CAdditionalWarning>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-std=c11 -pedantic -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="main.c" />
-    <ClCompile Include="queue.h" />
-    <ClCompile Include="queue.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="minunit.h" />
-  </ItemGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <CAdditionalWarning>switch;no-deprecated-declarations;empty-body;return-type;parentheses;no-pointer-sign;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CAdditionalWarning)</CAdditionalWarning>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-std=c11 -pedantic -Wshadow -Wcast-qual -Wwrite-strings -Werror %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
