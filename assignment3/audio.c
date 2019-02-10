@@ -5,6 +5,7 @@
 
 #include "audio.h"
 #include "assert-macros.h"
+#include "delay.h"
 
 void audio_init(audio_t* device)
 {
@@ -89,13 +90,32 @@ void audio_write(
     float* buffer,
     uint32_t frames)
 {
-    snd_pcm_sframes_t written_frames = snd_pcm_writei(handle, buffer, frames);
-    ASSERT(written_frames >= 0);
-    if(written_frames == -EPIPE)
+    snd_pcm_sframes_t err = snd_pcm_writei(handle, buffer, frames);
+    
+    // try to recover
+    // from https://www.alsa-project.org/alsa-doc/alsa-lib/group___p_c_m.html#gabc748a500743713eafa960c7d104ca6f
+    // -EPIPE       is a buffer underrun
+    // -EBADFD      means the PCM is not in the right state  (SND_PCM_STATE_PREPARED or SND_PCM_STATE_RUNNING)
+    // -ESTRPIPE a  suspend event occurred (stream is suspended and waiting for an application recovery)
+    if(err == -EPIPE || err == -EBADFD)
     {
-        /* EPIPE means underrun */
         snd_pcm_prepare(handle);
     }
+    else if(err == -ESTRPIPE)
+    {
+        while((err = snd_pcm_resume(handle)) == -EAGAIN)
+        {
+            // wait 0.5 seconds
+            delay(500000);
+        }
+        if (err < 0)
+        {
+            err = snd_pcm_prepare(handle);
+        }
+    }
+    
+    // couldn't recover
+    ASSERT(err >= 0);
 }
 
 void audio_terminate(audio_t* device)
