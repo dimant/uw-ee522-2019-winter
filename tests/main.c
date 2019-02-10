@@ -116,18 +116,29 @@ const char* test_audio_pulse()
 {
     const uint32_t buffer_size = 30;
     const uint32_t samples = 11;
-    const uint32_t period = 7;
+    const uint32_t period = 8;
 
     float buffer[buffer_size];
 
-    memset(buffer, 0, sizeof(float) * buffer_size);
+    memset(buffer, -1.0f, sizeof(float) * buffer_size);
 
     audio_pulse(buffer, samples, period, 0, 50);
-    audio_pulse(buffer, samples, period, 1, 50);
+    audio_pulse(buffer + samples, samples, period, 1, 50);
 
-    mu_assert("buffer[0] != 0.0f", FCOMP(buffer[0], 0.0f));
-    mu_assert("buffer[10] != 1.0f", FCOMP(buffer[10], 1.0f));
+    mu_assert("buffer[0] != 1.0f", FCOMP(buffer[0], 1.0f));
+    mu_assert("buffer[3] != 1.0f", FCOMP(buffer[3], 1.0f));
+    mu_assert("buffer[4] != 0.0f", FCOMP(buffer[4], 0.0f));
+    mu_assert("buffer[7] != 0.0f", FCOMP(buffer[7], 0.0f));
 
+    mu_assert("buffer[8] != 1.0f", FCOMP(buffer[8], 1.0f));
+    mu_assert("buffer[11] != 1.0f", FCOMP(buffer[11], 1.0f));
+    mu_assert("buffer[12] != 0.0f", FCOMP(buffer[12], 0.0f));
+    mu_assert("buffer[15] != 0.0f", FCOMP(buffer[15], 0.0f));
+
+    mu_assert("buffer[16] != 1.0f", FCOMP(buffer[16], 1.0f));
+    mu_assert("buffer[19] != 1.0f", FCOMP(buffer[19], 1.0f));
+    mu_assert("buffer[20] != 0.0f", FCOMP(buffer[20], 0.0f));
+    mu_assert("buffer[21] != -1.0f", FCOMP(buffer[21], 0.0f));
     return NULL;
 }
 

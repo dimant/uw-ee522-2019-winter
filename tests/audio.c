@@ -13,13 +13,13 @@ void audio_pulse(
 
     for (uint32_t s = offset; s < samples + offset; s++)
     {
-        if (s % period > sduty)
+        if (s % period >= sduty)
         {
-            buffer[s] = 0.0f;
+            buffer[s - offset] = 0.0f;
         }
         else
         {
-            buffer[s] = 1.0f;
+            buffer[s - offset] = 1.0f;
         }
     }
 }
