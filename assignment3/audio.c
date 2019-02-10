@@ -156,7 +156,7 @@ void audio_saw(
         uint32_t    chunk)
 { 
     float step = 1.0f / (float)period;
-    uint32_t offset = chunk * samples % period;
+    uint32_t offset = chunk == 0 ? 0 : period % (chunk * samples);
 
     for(uint32_t s = offset; s < samples + offset; s++)
     {

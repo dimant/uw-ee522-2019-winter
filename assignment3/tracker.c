@@ -28,14 +28,12 @@
 // 
 // Form         Duration    Note    Duty Cycle
 // ---------------------------------------------------------
-// saw          5periods    C2-B2
+// saw          500ms       C2-B2
 // triangle                 C3-B3
 // pulse                    C4-B4   0-100
 // sin
 // noise
-
-// add
-// mul
+// silence
 
 // Notes:
 // ---------------------
@@ -123,7 +121,7 @@ const uint32_t freqs[] = {
     165,
     175,
     185,
-    196 ,
+    196,
     208,
     220,
     233,
@@ -171,6 +169,8 @@ static track_row_t* tracker_row_create()
 
 static void tracker_row_delete(track_row_t* row)
 {
+    ASSERT(row != NULL);
+
     for(uint32_t i = 0; i < MAX_COL; i++)
     {
         free(row->cols[i]);
@@ -180,6 +180,31 @@ static void tracker_row_delete(track_row_t* row)
     free(row);
 }
 
+void tracker_state_create(
+    tracker_state_t*    state,
+    uint32_t            sampling_rate,
+    float               chunks_per_ms,
+    track_row_t*        first_row)
+{
+    ASSERT(state != NULL);
+    ASSERT(sampling_rate > 0);
+    ASSERT(first_row != NULL);
+
+    state->sampling_rate = sampling_rate;
+    state->chunks_per_ms = chunks_per_ms;
+    state->first_row = first_row;
+    state->current_row = first_row;
+    state->chunk = 0;
+}
+
+void tracker_state_delete(tracker_state_t* state)
+{
+    state->sampling_rate = 0;
+    state->chunks_per_ms = 0.0f;
+    state->first_row = NULL;
+    state->current_row = NULL;
+    state->chunk = 0;
+}
 
 static FILE* tracker_open(const char* fname)
 {
@@ -266,64 +291,69 @@ track_row_t* tracker_load(const char* fname)
     return first_row->next;
 }
 
-//static uint32_t note_to_idx(char* note)
-//{
-//    uint32_t idx = 0;
-//
-//    for(idx = 0; idx < MAX_NOTES; idx++)
-//    {
-//        if(0 == strcmp(notes[idx], note))
-//            return idx;
-//    }
-//
-//    ASSERT(FALSE);
-//    return 0;
-//}
+static uint32_t note_to_idx(char* note)
+{
+    uint32_t idx = 0;
 
-//
-//void tracker_get_period(tracker_state_t* state, float* buffer, uint32_t samples)
-//{
-//    char** cols = state->current_row->cols;
-//    uint32_t periods = (uint32_t)atoi(cols[COL_DURATION]);
-//
-//    if (state->current_period >= periods)
-//    {
-//        if (state->current_row->next != NULL)
-//        {
-//            state->current_row = state->current_row->next;
-//        }
-//        else
-//        {
-//            state->current_row = state->first_row;
-//        }
-//
-//        periods = (uint32_t)atoi(cols[COL_DURATION]);
-//        state->current_period = 0;
-//    }
-//
-//    uint32_t freq = freqs[note_to_idx(cols[COL_NOTE])];
-//
-//    if (0 == strcmp("saw", state->current_row->cols[COL_FORM]))
-//    {
-//        audio_saw(buffer, samples, freq, state->current_period);
-//    }
-//    else if (0 == strcmp("triangle", state->current_row->cols[COL_FORM]))
-//    {
-//        audio_triangle(buffer, samples, freq, state->current_period);
-//    }
-//    else if (0 == strcmp("pulse", state->current_row->cols[COL_FORM]))
-//    {
-//        uint32_t duty = (uint32_t)atoi(state->current_row->cols[COL_DUTY]);
-//        audio_pulse(buffer, samples, freq, state->current_period, duty);
-//    }
-//    else if (0 == strcmp("sin", state->current_row->cols[COL_FORM]))
-//    {
-//        audio_sin(buffer, samples, freq, state->current_period);
-//    }
-//    else if (0 == strcmp("noise", state->current_row->cols[COL_FORM]))
-//    {
-//        audio_noise(buffer, samples);
-//    }
-//
-//    state->current_period++;
-//}
+    for(idx = 0; idx < MAX_NOTES; idx++)
+    {
+        if(0 == strcmp(notes[idx], note))
+            return idx;
+    }
+
+    ASSERT(FALSE);
+    return 0;
+}
+
+void tracker_get_period(tracker_state_t* state, float* buffer, uint32_t samples)
+{
+    char** cols = state->current_row->cols;
+    const uint32_t ms = (uint32_t)atoi(cols[COL_DURATION]);
+    const uint32_t chunks = (uint32_t)((float) ms * state->chunks_per_ms);
+
+    if (state->chunk >= chunks)
+    {
+        if (state->current_row->next != NULL)
+        {
+            state->current_row = state->current_row->next;
+        }
+        else
+        {
+            state->current_row = state->first_row;
+        }
+
+        state->chunk = 0;
+    }
+
+    uint32_t freq = freqs[note_to_idx(cols[COL_NOTE])];
+    uint32_t period = state->sampling_rate / freq;
+
+    if (0 == strcmp("saw", state->current_row->cols[COL_FORM]))
+    {
+        audio_saw(buffer, samples, period, state->chunk);
+    }
+    else if (0 == strcmp("triangle", state->current_row->cols[COL_FORM]))
+    {
+        audio_triangle(buffer, samples, period, state->chunk);
+    }
+    else if (0 == strcmp("pulse", state->current_row->cols[COL_FORM]))
+    {
+        uint32_t duty = (uint32_t)atoi(state->current_row->cols[COL_DUTY]);
+        audio_pulse(buffer, samples, period, state->chunk, duty);
+    }
+    else if (0 == strcmp("sin", state->current_row->cols[COL_FORM]))
+    {
+        float angle = (float)freq / (float)state->sampling_rate;
+        audio_sin(buffer, samples, angle, period, state->chunk);
+    }
+    else if (0 == strcmp("noise", state->current_row->cols[COL_FORM]))
+    {
+        audio_noise(buffer, samples);
+    }
+    else if (0 == strcmp("silence", state->current_row->cols[COL_FORM]))
+    {
+        memset(buffer, 0, samples);
+    }
+
+    state->chunk++;
+}

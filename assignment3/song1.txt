@@ -1,0 +1,6 @@
+saw,500,4A0
+silence,500,4A0
+saw,500,4B0
+silence,500,4A0
+saw,500,4C0
+silence,500,4A0

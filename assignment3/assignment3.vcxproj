@@ -104,6 +104,18 @@
     <ClInclude Include="tracker.h" />
     <ClInclude Include="type-macros.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="song1.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</DeploymentContent>
+      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</RemoteCopyFile>
+      <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</RemoteCopyToOutputDir>
+      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyFile>
+      <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyToOutputDir>
+    </Text>
+  </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <CAdditionalWarning>switch;no-deprecated-declarations;empty-body;return-type;parentheses;no-pointer-sign;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CAdditionalWarning)</CAdditionalWarning>
