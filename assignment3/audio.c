@@ -198,15 +198,15 @@ void audio_pulse(
     }
 }
 
-//void audio_noise(
-//        float*      buffer,
-//        uint32_t    samples)
-//{
-//    srand((unsigned int) time(NULL));
-//
-//    for(uint32_t s = 0; s < samples; s++)
-//    {
-//        buffer[s] = ((float) rand() / (float) RAND_MAX);
-//    }
-//}
+void audio_noise(
+        float*      buffer,
+        uint32_t    samples)
+{
+    srand((unsigned int) time(NULL));
+
+    for(uint32_t s = 0; s < samples; s++)
+    {
+        buffer[s] = ((float) rand() / (float) RAND_MAX);
+    }
+}
 
