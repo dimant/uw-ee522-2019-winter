@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * nframes);
 
     uint32_t period = audio_device.sampling_rate / 440;
-    audio_triangle(buffer, nframes * audio_device.frames, period, 0);
+    audio_pulse(buffer, nframes * audio_device.frames, period, 0, 10);
 
     audio_write(audio_device.handle, buffer, nframes * audio_device.frames);
 
