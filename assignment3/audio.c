@@ -132,81 +132,81 @@ void audio_add(
 void audio_saw(
         float*      buffer,
         uint32_t    samples,
-        uint32_t    freq,
-        uint32_t    period)
-{ 
-    float step = 1.0f / (float)freq;
-    uint32_t offset = period * samples % freq;
-
-    for(uint32_t s = offset; s < samples + offset; s++)
-    {
-        buffer[s] = step * (float) (s % freq);
-    }
-}
-
-void audio_triangle(
-        float*      buffer,
-        uint32_t    samples,
-        uint32_t    freq,
-        uint32_t    period)
-{
-    float step = 1.0f / (float) (freq >> 1);
-    uint32_t offset = period * samples % freq;
-
-    for(uint32_t s = offset; s < samples + offset; s++)
-    {
-        buffer[s] = (float) fabs(step * (float) (s % freq) - 1.0f);
-    }
-}
-
-void audio_sin(
-        float*      buffer,
-        uint32_t    samples,
-        uint32_t    freq,
-        uint32_t    period)
-{
-    float fact = 2.0f * (float)M_PI * (float) freq;
-    uint32_t offset = period * samples % freq;
-
-    for(uint32_t s = offset; s < samples + offset; s++)
-    {
-        buffer[s] = (float) sinf(fact * (float) s); 
-    }
-}
-
-void audio_pulse(
-        float*      buffer,
-        uint32_t    samples,
-        uint32_t    freq,
         uint32_t    period,
-        uint32_t    duty)
-{
-    float _duty = ((float) duty) / 100.0f;
-    uint32_t offset = period * samples % freq;
-    uint32_t sduty = (uint32_t) ((float)freq * _duty);
+        uint32_t    chunk)
+{ 
+    float step = 1.0f / (float)period;
+    uint32_t offset = chunk * samples % period;
 
     for(uint32_t s = offset; s < samples + offset; s++)
     {
-        if(s % freq > sduty)
-        {
-            buffer[s] = 0.0f;
-        }
-        else
-        {
-            buffer[s] = 1.0f;
-        }
+        buffer[s] = step * (float) (s % period);
     }
 }
 
-void audio_noise(
-        float*      buffer,
-        uint32_t    samples)
-{
-    srand((unsigned int) time(NULL));
-
-    for(uint32_t s = 0; s < samples; s++)
-    {
-        buffer[s] = ((float) rand() / (float) RAND_MAX);
-    }
-}
+//void audio_triangle(
+//        float*      buffer,
+//        uint32_t    samples,
+//        uint32_t    freq,
+//        uint32_t    period)
+//{
+//    float step = 1.0f / (float) (freq >> 1);
+//    uint32_t offset = period * samples % freq;
+//
+//    for(uint32_t s = offset; s < samples + offset; s++)
+//    {
+//        buffer[s] = (float) fabs(step * (float) (s % freq) - 1.0f);
+//    }
+//}
+//
+//void audio_sin(
+//        float*      buffer,
+//        uint32_t    samples,
+//        uint32_t    freq,
+//        uint32_t    period)
+//{
+//    float fact = 2.0f * (float)M_PI * (float) freq;
+//    uint32_t offset = period * samples % freq;
+//
+//    for(uint32_t s = offset; s < samples + offset; s++)
+//    {
+//        buffer[s] = (float) sinf(fact * (float) s); 
+//    }
+//}
+//
+//void audio_pulse(
+//        float*      buffer,
+//        uint32_t    samples,
+//        uint32_t    freq,
+//        uint32_t    period,
+//        uint32_t    duty)
+//{
+//    float _duty = ((float) duty) / 100.0f;
+//    uint32_t offset = period * samples % freq;
+//    uint32_t sduty = (uint32_t) ((float)freq * _duty);
+//
+//    for(uint32_t s = offset; s < samples + offset; s++)
+//    {
+//        if(s % freq > sduty)
+//        {
+//            buffer[s] = 0.0f;
+//        }
+//        else
+//        {
+//            buffer[s] = 1.0f;
+//        }
+//    }
+//}
+//
+//void audio_noise(
+//        float*      buffer,
+//        uint32_t    samples)
+//{
+//    srand((unsigned int) time(NULL));
+//
+//    for(uint32_t s = 0; s < samples; s++)
+//    {
+//        buffer[s] = ((float) rand() / (float) RAND_MAX);
+//    }
+//}
 

@@ -48,30 +48,30 @@ void audio_add(
 void audio_saw(
     float*      buffer,
     uint32_t    samples,
-    uint32_t    freq,
-    uint32_t    period);
-
-void audio_triangle(
-    float*      buffer,
-    uint32_t    samples,
-    uint32_t    freq,
-    uint32_t    period);
-
-void audio_sin(
-    float*      buffer,
-    uint32_t    samples,
-    uint32_t    freq,
-    uint32_t    period);
-
-void audio_pulse(
-    float*      buffer,
-    uint32_t    samples,
-    uint32_t    freq,
     uint32_t    period,
-    uint32_t    duty);
+    uint32_t    chunk);
 
-void audio_noise(
-    float*      buffer,
-    uint32_t    samples);
+//void audio_triangle(
+//    float*      buffer,
+//    uint32_t    samples,
+//    uint32_t    freq,
+//    uint32_t    period);
+//
+//void audio_sin(
+//    float*      buffer,
+//    uint32_t    samples,
+//    uint32_t    freq,
+//    uint32_t    period);
+//
+//void audio_pulse(
+//    float*      buffer,
+//    uint32_t    samples,
+//    uint32_t    freq,
+//    uint32_t    period,
+//    uint32_t    duty);
+//
+//void audio_noise(
+//    float*      buffer,
+//    uint32_t    samples);
 
 #endif

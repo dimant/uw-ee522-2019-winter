@@ -13,6 +13,14 @@ int main(int argc, char* argv[])
 
     audio_init(&audio_device);
 
+    uint32_t nframes = 1000;
+    float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * nframes);
+
+    uint32_t period = audio_device.sampling_rate / 440;
+    audio_saw(buffer, nframes * audio_device.frames, period, 0);
+
+    audio_write(audio_device.handle, buffer, nframes * audio_device.frames);
+
     audio_terminate(&audio_device);
 
     return 0;
