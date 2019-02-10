@@ -16,8 +16,9 @@ int main(int argc, char* argv[])
     uint32_t nframes = 1000;
     float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * nframes);
 
-    //uint32_t period = audio_device.sampling_rate / 440;
-    audio_noise(buffer, nframes * audio_device.frames);
+    uint32_t period = audio_device.sampling_rate / 440;
+    float angle = (float)440 / (float)audio_device.sampling_rate;
+    audio_sin(buffer, nframes * audio_device.frames, angle, period, 0);
 
     audio_write(audio_device.handle, buffer, nframes * audio_device.frames);
 

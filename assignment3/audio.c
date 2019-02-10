@@ -159,20 +159,21 @@ void audio_triangle(
     }
 }
 
-//void audio_sin(
-//        float*      buffer,
-//        uint32_t    samples,
-//        uint32_t    freq,
-//        uint32_t    period)
-//{
-//    float fact = 2.0f * (float)M_PI * (float) freq;
-//    uint32_t offset = period * samples % freq;
-//
-//    for(uint32_t s = offset; s < samples + offset; s++)
-//    {
-//        buffer[s] = (float) sinf(fact * (float) s); 
-//    }
-//}
+void audio_sin(
+        float*      buffer,
+        uint32_t    samples,
+        float       angle,
+        uint32_t    period,
+        uint32_t    chunk)
+{
+    float fact = 2.0f * (float)M_PI * (float)angle;
+    uint32_t offset = chunk * samples % period;
+
+    for(uint32_t s = offset; s < samples + offset; s++)
+    {
+        buffer[s] = (float) sinf(fact * (float) s); 
+    }
+}
 
 void audio_pulse(
         float*      buffer,
