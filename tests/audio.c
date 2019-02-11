@@ -23,3 +23,18 @@ void audio_pulse(
         }
     }
 }
+
+void audio_saw(
+    float*      buffer,
+    uint32_t    samples,
+    uint32_t    period,
+    uint32_t    chunk)
+{
+    float step = 1.0f / (float)period;
+    uint32_t offset = chunk == 0 ? 0 : period % (chunk * samples);
+
+    for (uint32_t s = offset; s < samples + offset; s++)
+    {
+        buffer[s - offset] = step * (float)(s % period);
+    }
+}

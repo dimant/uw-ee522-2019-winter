@@ -20,7 +20,8 @@ int main(int argc, char* argv[])
     tracker_state_create(&tracker_state, audio_device.sampling_rate, chunks_per_ms, first_row);
 
     uint32_t nframes = 1;
-    float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
+    //float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
+    float buffer[100];
     
     //const uint32_t freq = 440;
 

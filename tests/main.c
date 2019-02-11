@@ -142,6 +142,32 @@ const char* test_audio_pulse()
     return NULL;
 }
 
+const char* test_audio_pulse_inverted()
+{
+    const uint32_t buffer_size = 100;
+    const uint32_t samples = 32;
+    const uint32_t period = 36;
+
+    float buffer[buffer_size];
+
+    memset(buffer, -1.0f, sizeof(float) * buffer_size);
+
+    audio_pulse(buffer, samples, period, 0, 50);
+    audio_pulse(buffer + samples, samples, period, 1, 50);
+
+    mu_assert("buffer[0] != 1.0f", FCOMP(buffer[0], 1.0f));
+    mu_assert("buffer[17] != 1.0f", FCOMP(buffer[17], 1.0f));
+    mu_assert("buffer[18] != 0.0f", FCOMP(buffer[18], 0.0f));
+    mu_assert("buffer[35] != 0.0f", FCOMP(buffer[35], 0.0f));
+
+    mu_assert("buffer[36] != 1.0f", FCOMP(buffer[36], 1.0f));
+    mu_assert("buffer[53] != 1.0f", FCOMP(buffer[53], 1.0f));
+    mu_assert("buffer[54] != 0.0f", FCOMP(buffer[54], 0.0f));
+    mu_assert("buffer[63] != 0.0f", FCOMP(buffer[63], 0.0f));
+
+    return NULL;
+}
+
 
 const char * all_tests() {
     mu_run_test(test_create);
@@ -150,6 +176,7 @@ const char * all_tests() {
     mu_run_test(test_get);
     mu_run_test(test_wrap);
     mu_run_test(test_audio_pulse);
+    mu_run_test(test_audio_pulse_inverted);
     return NULL;
 }
 
