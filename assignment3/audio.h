@@ -45,6 +45,11 @@ void audio_add(
     uint32_t    samples,
     float       ratio);
 
+void audio_mul(
+    float*      result,
+    float*      buffer,
+    uint32_t    samples);
+
 void audio_saw(
     float*      buffer,
     uint32_t    samples,
@@ -72,6 +77,10 @@ void audio_pulse(
     uint32_t    duty);
 
 void audio_noise(
+    float*      buffer,
+    uint32_t    samples);
+
+void audio_silence(
     float*      buffer,
     uint32_t    samples);
 

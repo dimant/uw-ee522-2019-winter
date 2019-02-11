@@ -149,6 +149,17 @@ void audio_add(
     }
 }
 
+void audio_mul(
+    float*      result,
+    float*      buffer,
+    uint32_t    samples)
+{
+    for (uint32_t s = 0; s < samples; s++)
+    {
+        result[s] = result[s] * buffer[s];
+    }
+}
+
 void audio_saw(
         float*      buffer,
         uint32_t    samples,
@@ -156,7 +167,7 @@ void audio_saw(
         uint32_t    chunk)
 { 
     float step = 1.0f / (float)period;
-    uint32_t offset = chunk == 0 ? 0 : period % (chunk * samples);
+    uint32_t offset = chunk * samples % period;
 
     for(uint32_t s = offset; s < samples + offset; s++)
     {
@@ -231,3 +242,12 @@ void audio_noise(
     }
 }
 
+void audio_silence(
+    float*      buffer,
+    uint32_t    samples)
+{
+    for (uint32_t s = 0; s < samples; s++)
+    {
+        buffer[s] = 0.0f;
+    }
+}

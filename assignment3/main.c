@@ -20,18 +20,10 @@ int main(int argc, char* argv[])
     tracker_state_create(&tracker_state, audio_device.sampling_rate, chunks_per_ms, first_row);
 
     uint32_t nframes = 1;
-    //float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
-    float buffer[100];
-    
-    //const uint32_t freq = 440;
+    float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
 
     while (1)
     {
-        //const uint32_t period = audio_device.sampling_rate / freq;
-        //float angle = (float)freq / (float)audio_device.sampling_rate;
-
-        //audio_sin(buffer, nframes * audio_device.frames, angle, period, 0);
-
         tracker_get_period(&tracker_state, buffer, audio_device.frames);
 
         audio_write(audio_device.handle, buffer, nframes * audio_device.frames);

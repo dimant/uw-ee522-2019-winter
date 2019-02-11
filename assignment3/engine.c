@@ -76,7 +76,22 @@ void eng_step()
 
 void eng_start()
 {
+    // start sound thread
+    //      allocate zeros
+    //      mix in bg music
+    //      mix in sfx
+    //      write
+
+    // allocate render buffer 1 & 2
+    // start render thread
+    //      render
+
     while(1)
     {
+        // read input
+        // do step
+        // fire sfx events if any
+        // render to front buffer
+        // swap with back buffer
     }
 }

@@ -1,7 +1,0 @@
-pulse,500,4C0,50
-pulse,500,4D0,50
-pulse,500,4E0,50
-pulse,500,4F0,50
-pulse,500,4G0,50
-pulse,500,4A0,50
-pulse,500,4B0,50

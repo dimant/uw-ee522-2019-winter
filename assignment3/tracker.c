@@ -352,7 +352,7 @@ void tracker_get_period(tracker_state_t* state, float* buffer, uint32_t samples)
     }
     else if (0 == strcmp("silence", state->current_row->cols[COL_FORM]))
     {
-        memset(buffer, 0, samples);
+        audio_silence(buffer, samples);
     }
 
     state->chunk++;

@@ -88,6 +88,7 @@
     <ClCompile Include="memgpio.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="queue.c" />
+    <ClCompile Include="sfx.c" />
     <ClCompile Include="tracker.c" />
   </ItemGroup>
   <ItemGroup>
@@ -101,11 +102,13 @@
     <ClInclude Include="memgpio.h" />
     <ClInclude Include="error-macros.h" />
     <ClInclude Include="queue.h" />
+    <ClInclude Include="sfx.h" />
     <ClInclude Include="tracker.h" />
     <ClInclude Include="type-macros.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="song1.txt">
+    <Text Include="song1.txt" />
+    <Text Include="test-song.txt">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</ExcludedFromBuild>
