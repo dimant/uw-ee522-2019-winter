@@ -2,12 +2,13 @@
 #include <stdlib.h>
 
 #include "audio.h"
+#include "sfx.h"
 #include "tracker.h"
 
 int main(int argc, char* argv[])
 {
     audio_t audio_device;
-    tracker_state_t tracker_state;
+    //tracker_state_t tracker_state;
 
     audio_device.name = "default";
     audio_device.sampling_rate = 16000;
@@ -15,17 +16,20 @@ int main(int argc, char* argv[])
 
     audio_init(&audio_device);
 
-    track_row_t* first_row = tracker_load("song1.txt");
-    const float chunks_per_ms = ((float) audio_device.sampling_rate / 1000.0f) / (float)audio_device.frames;
-    tracker_state_create(&tracker_state, audio_device.sampling_rate, chunks_per_ms, first_row);
+    //track_row_t* first_row = tracker_load("song1.txt");
+    //const float chunks_per_ms = ((float) audio_device.sampling_rate / 1000.0f) / (float)audio_device.frames;
+    //tracker_state_create(&tracker_state, audio_device.sampling_rate, chunks_per_ms, first_row);
 
     uint32_t nframes = 1;
     float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
 
-    while (1)
-    {
-        tracker_get_period(&tracker_state, buffer, audio_device.frames);
+    effect_t effect;
+    sfx_create(&effect, audio_device.sampling_rate);
+    sfx_create_pew(&effect);
 
+    while (sfx_get_period(&effect, buffer, audio_device.frames))
+    {
+        //tracker_get_period(&tracker_state, buffer, audio_device.frames);
         audio_write(audio_device.handle, buffer, nframes * audio_device.frames);
     }
 
