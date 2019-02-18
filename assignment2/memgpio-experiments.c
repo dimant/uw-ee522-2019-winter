@@ -66,7 +66,7 @@ void mgp_terminate()
     close(fd);
 }
 
-void mgp_setMode(uint8_t pin, uint8_t mode)
+void mgp_set_mode(uint8_t pin, uint8_t mode)
 {
 	// per the doc (page 91, Table 6.2 and following), pins are occupying registries of 32 bit
 	// 10 pins per register, 3 bits per pin, remaining 2 bits are reserved

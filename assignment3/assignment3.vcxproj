@@ -57,8 +57,7 @@
       <LibraryDependencies>m;asound</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
-      <Command>
-      </Command>
+      <Command>sudo sh $(RemoteOutDir)/make-self.sh $(RemoteTargetPath)</Command>
       <Message>
       </Message>
     </RemotePostBuildEvent>
@@ -68,8 +67,7 @@
       <LibraryDependencies>m;asound</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
-      <Command>
-      </Command>
+      <Command>sudo sh $(RemoteOutDir)/make-self.sh $(RemoteTargetPath)</Command>
       <Message>
       </Message>
     </RemotePostBuildEvent>
@@ -85,6 +83,7 @@
     <ClCompile Include="draw.c" />
     <ClCompile Include="engine.c" />
     <ClCompile Include="joystick.c" />
+    <ClCompile Include="lcd-driver.c" />
     <ClCompile Include="memgpio.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="queue.c" />
@@ -99,6 +98,7 @@
     <ClInclude Include="drawing-macros.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="joystick.h" />
+    <ClInclude Include="lcd-driver.h" />
     <ClInclude Include="memgpio.h" />
     <ClInclude Include="error-macros.h" />
     <ClInclude Include="queue.h" />
@@ -118,6 +118,16 @@
       <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyFile>
       <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyToOutputDir>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="make-self.sh">
+      <RemoteFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">make-self.sh</RemoteFile>
+      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</RemoteCopyFile>
+      <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</RemoteCopyToOutputDir>
+      <RemoteFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">make-self.sh</RemoteFile>
+      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyFile>
+      <RemoteCopyToOutputDir Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</RemoteCopyToOutputDir>
+    </None>
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
