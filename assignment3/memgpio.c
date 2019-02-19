@@ -42,28 +42,6 @@ void mgp_init()
 
     gpio = (uint32_t *) mmap(0, (size_t) pagesize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
     ASSERT((uint32_t) gpio >= 0)
-
-    mgp_setMode(X_BIT0, MODE_OUTPUT);
-    mgp_setMode(X_BIT1, MODE_OUTPUT);
-    mgp_setMode(X_BIT2, MODE_OUTPUT);
-    mgp_setMode(X_BIT3, MODE_OUTPUT);
-    mgp_setMode(X_BIT4, MODE_OUTPUT);
-    mgp_setMode(X_BIT5, MODE_OUTPUT);
-    mgp_setMode(X_BIT6, MODE_OUTPUT);
-    mgp_setMode(X_BIT7, MODE_OUTPUT);
-    mgp_setMode(X_BIT8, MODE_OUTPUT);
-    mgp_setMode(X_BIT9, MODE_OUTPUT);
-
-    mgp_setMode(Y_BIT0, MODE_OUTPUT);
-    mgp_setMode(Y_BIT1, MODE_OUTPUT);
-    mgp_setMode(Y_BIT2, MODE_OUTPUT);
-    mgp_setMode(Y_BIT3, MODE_OUTPUT);
-    mgp_setMode(Y_BIT4, MODE_OUTPUT);
-    mgp_setMode(Y_BIT5, MODE_OUTPUT);
-    mgp_setMode(Y_BIT6, MODE_OUTPUT);
-    mgp_setMode(Y_BIT7, MODE_OUTPUT);
-    mgp_setMode(Y_BIT8, MODE_OUTPUT);
-    mgp_setMode(Y_BIT9, MODE_OUTPUT);
 }
 
 void mgp_terminate()
@@ -77,7 +55,7 @@ void mgp_terminate()
     close(fd);
 }
 
-void mgp_setMode(uint32_t pin, uint32_t mode)
+void mgp_set_mode(uint32_t pin, uint32_t mode)
 {
 	// per the doc (page 91, Table 6.2 and following), pins are occupying registries of 32 bit
 	// 10 pins per register, 3 bits per pin, remaining 2 bits are reserved

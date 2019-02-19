@@ -1,0 +1,1 @@
+chown root "$1";chmod u+s "$1"

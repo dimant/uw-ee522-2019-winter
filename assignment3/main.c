@@ -1,42 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "audio.h"
-#include "sfx.h"
-#include "tracker.h"
+#include "memgpio.h"
+#include "lcd-driver.h"
+
+//#include "audio.h"
+//#include "sfx.h"
+//#include "tracker.h"
 
 int main(int argc, char* argv[])
 {
-    audio_t audio_device;
-    //tracker_state_t tracker_state;
+    mgp_init();
 
-    audio_device.name = "default";
-    audio_device.sampling_rate = 16000;
-    audio_device.channels = 1;
+    lcd_init();
 
-    audio_init(&audio_device);
+    lcd_terminate();
 
-    //track_row_t* first_row = tracker_load("song1.txt");
-    //const float chunks_per_ms = ((float) audio_device.sampling_rate / 1000.0f) / (float)audio_device.frames;
-    //tracker_state_create(&tracker_state, audio_device.sampling_rate, chunks_per_ms, first_row);
-
-    uint32_t nframes = 1;
-    float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
-
-    effect_t effect;
-    sfx_create(&effect, audio_device.sampling_rate);
-    sfx_create_pew(&effect);
-
-    while (sfx_get_period(&effect, buffer, audio_device.frames))
-    {
-        //tracker_get_period(&tracker_state, buffer, audio_device.frames);
-        audio_write(audio_device.handle, buffer, nframes * audio_device.frames);
-    }
-
-    audio_terminate(&audio_device);
-
-    return 0;
+    mgp_terminate();
 }
+
+//int main(int argc, char* argv[])
+//{
+//    audio_t audio_device;
+//    //tracker_state_t tracker_state;
+//
+//    audio_device.name = "default";
+//    audio_device.sampling_rate = 16000;
+//    audio_device.channels = 1;
+//
+//    audio_init(&audio_device);
+//
+//    //track_row_t* first_row = tracker_load("song1.txt");
+//    //const float chunks_per_ms = ((float) audio_device.sampling_rate / 1000.0f) / (float)audio_device.frames;
+//    //tracker_state_create(&tracker_state, audio_device.sampling_rate, chunks_per_ms, first_row);
+//
+//    uint32_t nframes = 1;
+//    float* buffer = (float*)malloc(sizeof(float) * audio_device.frames * 10);
+//
+//    effect_t effect;
+//    sfx_create(&effect, audio_device.sampling_rate);
+//    sfx_create_pew(&effect);
+//
+//    while (sfx_get_period(&effect, buffer, audio_device.frames))
+//    {
+//        //tracker_get_period(&tracker_state, buffer, audio_device.frames);
+//        audio_write(audio_device.handle, buffer, nframes * audio_device.frames);
+//    }
+//
+//    audio_terminate(&audio_device);
+//
+//    return 0;
+//}
 
 /* axis and buttons. It's event driven, and has full signed int
 *  ranges of the axis (-32768 to 32767). It also lets you pull the joysticks
