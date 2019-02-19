@@ -20,8 +20,8 @@
 #define GPSET1 0x20
 #define GPCLR0 0x28
 #define GPCLR1 0x2c
-#define GPLVL0 0x34
-#define GPLVL1 0x38
+#define GPLEV0 0x34
+#define GPLEV1 0x38
 
 static volatile uint32_t *gpio;
 static int fd;
@@ -73,6 +73,11 @@ void mgp_set_mode(uint32_t pin, uint32_t mode)
 void mgp_set_pins(uint32_t bits)
 {
     GPIO_OFFSET_PTR(gpio, GPSET0) = bits;
+}
+
+uint32_t mgp_get_pins()
+{
+    return GPIO_OFFSET_PTR(gpio, GPLEV0);
 }
 
 void mgp_clr_pins(uint32_t bits)

@@ -16,10 +16,17 @@ uint32_t sfx_get_period(
     float*      buffer,
     uint32_t    samples);
 
-void sfx_create(
-    effect_t* effect,
-    uint32_t sampling_rate);
+void sfx_destroy(effect_t* effect);
 
+void sfx_create_dot(
+    effect_t* effect,
+    uint32_t freq,
+    uint32_t wpm);
+
+void sfx_create_dash(
+    effect_t* effect,
+    uint32_t freq,
+    uint32_t wpm);
 
 void sfx_create_pew(effect_t* effect);
 

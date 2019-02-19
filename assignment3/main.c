@@ -2,23 +2,74 @@
 #include <stdlib.h>
 
 #include "memgpio.h"
-#include "lcd-driver.h"
+#include "delay.h"
 
-//#include "audio.h"
-//#include "sfx.h"
-//#include "tracker.h"
+#include "audio.h"
+
+#include "sfx.h"
+
+#define DASH_PIN 19
+#define DOT_PIN  26
+
+#define FREQ 770
+#define WPM 15
 
 int main(int argc, char* argv[])
 {
+    audio_t audio_device;
+    audio_device.name = "default";
+    audio_device.sampling_rate = 16000;
+    audio_device.channels = 1;
+
+    effect_t dash_sound;
+    dash_sound.buffer = NULL;
+    dash_sound.size = 0;
+    dash_sound.sampling_rate = audio_device.sampling_rate;
+    sfx_create_dash(&dash_sound, FREQ, WPM);
+
+    effect_t dot_sound;
+    dot_sound.buffer = NULL;
+    dot_sound.size = 0;
+    dot_sound.sampling_rate = audio_device.sampling_rate;
+    sfx_create_dot(&dot_sound, FREQ, WPM);
+
+    uint32_t pins;
+
+    audio_init(&audio_device);
     mgp_init();
+    mgp_set_mode(19, GPIO_MODE_INPUT);
+    mgp_set_mode(26, GPIO_MODE_INPUT);
 
-    lcd_init();
+    float audio_buffer[audio_device.frames * 10];
+    
+    while (1)
+    {
+        pins = mgp_get_pins();
 
-    lcd_putc(1, 0, 65);
+        if (BIT_ISSET(pins, DASH_PIN))
+        {
+            while (sfx_get_period(&dash_sound, audio_buffer, audio_device.frames))
+            {
+                audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+            }
+            dash_sound.cursor = 0;
+        }
+        else if (BIT_ISSET(pins, DOT_PIN))
+        {
+            while (sfx_get_period(&dot_sound, audio_buffer, audio_device.frames))
+            {
+                audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+            }
+            dot_sound.cursor = 0;
+        }
 
-    lcd_terminate();
+        delay(1000);
+    }
 
     mgp_terminate();
+    audio_terminate(&audio_device);
+    sfx_destroy(&dash_sound);
+    sfx_destroy(&dot_sound);
 }
 
 //int main(int argc, char* argv[])

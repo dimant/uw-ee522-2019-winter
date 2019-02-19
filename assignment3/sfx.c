@@ -1,5 +1,7 @@
 #include "sfx.h"
 
+#include <math.h>
+
 #include "audio.h"
 #include "type-macros.h"
 #include "assert-macros.h"
@@ -22,20 +24,74 @@ uint32_t sfx_get_period(effect_t* effect, float* buffer, uint32_t samples)
     return TRUE;
 }
 
-void sfx_create(effect_t* effect, uint32_t sampling_rate)
+void sfx_destroy(effect_t* effect)
 {
-    ASSERT(sampling_rate > 0);
+    ASSERT(effect != NULL);
 
-    effect->buffer = (float*)malloc(sizeof(float) * sampling_rate);
+    if (effect->buffer != NULL)
+    {
+        free(effect->buffer);
+        effect->buffer = NULL;
+    }
+
     effect->size = 0;
     effect->cursor = 0;
-    effect->sampling_rate = (uint32_t) sampling_rate;
+    effect->sampling_rate = 0;
+}
+
+void sfx_create_dot(effect_t* effect, uint32_t freq, uint32_t wpm)
+{
+    ASSERT(effect->sampling_rate > 0);
+    ASSERT(effect->buffer == NULL);
+    ASSERT(effect->size == 0);
+
+    // dots per second calculated as per
+    // http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm
+    float dps = (float)wpm / 2.4f;
+    uint32_t samples = (uint32_t) ceilf((float) effect->sampling_rate / dps);
+    uint32_t period = effect->sampling_rate / freq;
+
+    // 1 dot length sine wave, 1 dot length silence
+    effect->buffer = (float*)malloc(sizeof(float) * samples * 2);
+
+
+    effect->size = samples;
+    effect->cursor = 0;
+
+    audio_saw(effect->buffer, samples, period, 0);
+    //audio_silence(effect->buffer + dot_samples, dot_samples);
+}
+
+void sfx_create_dash(effect_t* effect, uint32_t freq, uint32_t wpm)
+{
+    ASSERT(effect->sampling_rate > 0);
+    ASSERT(effect->buffer == NULL);
+    ASSERT(effect->size == 0);
+
+    // dots per second calculated as per
+    // http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm
+    float dps = (float)wpm / 2.4f;
+    uint32_t samples = 3 * (uint32_t)ceilf((float)effect->sampling_rate / dps);
+    uint32_t period = effect->sampling_rate / freq;
+
+    // 3 dot lengths for the dash and 1 dot length of silence
+    effect->buffer = (float*)malloc(sizeof(float) * samples);
+
+    effect->size = samples;
+    effect->cursor = 0;
+
+    audio_saw(effect->buffer, samples, period, 0);
+    //audio_silence(effect->buffer + dot_samples * 3, dot_samples);
 }
 
 void sfx_create_pew(effect_t* effect)
 {
     ASSERT(effect != NULL);
-    ASSERT(effect->buffer != NULL);
+    if (effect->buffer == NULL)
+    {
+        // 3 dot lengths for the dash and 1 dot length of silence
+        effect->buffer = (float*)malloc(sizeof(float) * effect->sampling_rate);
+    }
 
     const uint32_t duration = 250; // ms
     const uint32_t samples = duration * effect->sampling_rate / 1000;
