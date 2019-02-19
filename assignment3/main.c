@@ -14,6 +14,8 @@ int main(int argc, char* argv[])
 
     lcd_init();
 
+    lcd_putc(1, 0, 65);
+
     lcd_terminate();
 
     mgp_terminate();

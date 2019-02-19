@@ -185,9 +185,12 @@ void lcd_execute(uint32_t cmd)
     uint32_t gpio_en = gpio | LCD_CMD_EN;
 
     mgp_set_pins(gpio_en);
-    delay(50);
+    delay(100);
+    mgp_clr_pins(gpio_en);
+
     mgp_set_pins(gpio);
-    delay(50);
+    delay(100);
+    mgp_clr_pins(gpio);
 }
 
 void lcd_init()
@@ -215,11 +218,10 @@ void lcd_init()
         LCD_PIN_DB6 |
         LCD_PIN_DB7);
 
+    lcd_execute(lcd_on(1, 1, 1));
     lcd_execute(LCD_CMD_CLR);
     lcd_execute(LCD_CMD_HOME);
-    lcd_execute(lcd_on(1, 1, 1));
     lcd_execute(lcd_fun(0, 1, 1));
-    lcd_putc(1, 0, 65);
 }
 
 void lcd_terminate()
