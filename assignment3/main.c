@@ -14,6 +14,35 @@
 #define FREQ 770
 #define WPM 15
 
+// These durations are defined as per:
+// http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm
+
+inline uint32_t morse_dot_duration(uint32_t wpm)
+{
+    // dots per second is calculated as wpm * 2.4
+    //
+    // then divide 1 / (wpm 2.4) to get seconds per dot
+    // finally multiply the result by 1000 to get milliseconds
+    return (uint32_t)(1.000f / 2.4f) / (float)wpm;
+}
+
+inline uint32_t morse_dot_character_duration(uint32_t wpm)
+{
+    // 1 dot length for the signal, 1 dot length of silence
+    return morse_dot_duration(wpm) * 2;
+}
+
+inline uint32_t morse_dash_character_duration(uint32_t wpm)
+{
+    // 3 dot lengths for the signal, 1 dot length of silence
+    return morse_dot_duration(wpm) * 4;
+}
+
+inline uint32_t morse_word_space_duration(uint32_t wpm)
+{
+    return morse_dot_duration(wpm) * 7;
+}
+
 int main(int argc, char* argv[])
 {
     audio_t audio_device;
@@ -63,7 +92,7 @@ int main(int argc, char* argv[])
             dot_sound.cursor = 0;
         }
 
-        delay(1000);
+        delay(100000);
     }
 
     mgp_terminate();

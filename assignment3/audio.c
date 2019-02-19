@@ -7,6 +7,8 @@
 #include "assert-macros.h"
 #include "delay.h"
 
+#define POLLING_TIMEOUT 1000
+
 void audio_init(audio_t* device)
 {
     ASSERT(device != NULL);
@@ -113,7 +115,7 @@ void audio_write(
             err = snd_pcm_prepare(handle);
         }
     }
-    
+
     // couldn't recover
     ASSERT(err >= 0);
 }
