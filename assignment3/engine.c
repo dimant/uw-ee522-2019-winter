@@ -48,22 +48,22 @@ uint32_t eng_collide(
 
     return FALSE;
 }
-
-void eng_render(uint32_t* buffer)
-{
-    for(uint32_t y = 0; y < Y_MAX; y++)
-    {
-        for(uint32_t x = 0; x < X_MAX; x++)
-        {
-            if(buffer[x + y * Y_MAX])
-            {
-                mgp_xy_set(x, y);
-                delay(PXL_DELAY);
-                mgp_xy_clr(x, y);
-            }
-        }
-    }
-}
+//
+//void eng_render(uint32_t* buffer)
+//{
+//    for(uint32_t y = 0; y < Y_MAX; y++)
+//    {
+//        for(uint32_t x = 0; x < X_MAX; x++)
+//        {
+//            if(buffer[x + y * Y_MAX])
+//            {
+//                mgp_xy_set(x, y);
+//                delay(PXL_DELAY);
+//                mgp_xy_clr(x, y);
+//            }
+//        }
+//    }
+//}
 
 void eng_step()
 {

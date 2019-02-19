@@ -8,6 +8,9 @@
 #include "memgpio.h"
 #include "type-macros.h"
 
+#define Y_MAX 1024
+#define X_MAX 1024
+
 static int draw_initialized = FALSE;
 
 static uint32_t* back_buffer = NULL;

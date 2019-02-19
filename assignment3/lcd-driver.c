@@ -183,8 +183,27 @@ void lcd_execute(uint32_t cmd)
 {
     uint32_t gpio = (uint32_t) LCD_TO_GPIO(cmd);
     uint32_t gpio_en = gpio | LCD_CMD_EN;
-    
-    mgp_bits_clr(
+
+    mgp_set_pins(gpio_en);
+    delay(50);
+    mgp_set_pins(gpio);
+    delay(50);
+}
+
+void lcd_init()
+{
+    mgp_set_mode(LCD_PIN_RS,  MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_E,   MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB0, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB1, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB2, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB3, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB4, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB5, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB6, MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_DB7, MODE_OUTPUT);
+
+    mgp_clr_pins(
         LCD_PIN_RS |
         LCD_PIN_E |
         LCD_PIN_DB0 |
@@ -195,39 +214,6 @@ void lcd_execute(uint32_t cmd)
         LCD_PIN_DB5 |
         LCD_PIN_DB6 |
         LCD_PIN_DB7);
-
-    mgp_bits_set(0);
-
-    mgp_bits_set(gpio_en);
-    delay(50);
-    mgp_bits_set(gpio);
-    delay(50);
-}
-
-void lcd_init()
-{
-    mgp_bits_clr(
-        LCD_PIN_RS  |
-        LCD_PIN_E   |
-        LCD_PIN_DB0 |
-        LCD_PIN_DB1 |
-        LCD_PIN_DB2 |
-        LCD_PIN_DB3 |
-        LCD_PIN_DB4 |
-        LCD_PIN_DB5 |
-        LCD_PIN_DB6 |
-        LCD_PIN_DB7);
-
-    mgp_set_mode(LCD_PIN_RS, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_E, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB0, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB1, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB2, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB3, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB4, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB5, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB6, MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB7, MODE_OUTPUT);
 
     lcd_execute(LCD_CMD_CLR);
     lcd_execute(LCD_CMD_HOME);

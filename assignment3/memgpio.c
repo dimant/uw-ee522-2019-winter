@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "memgpio.h"
-#include "drawing-macros.h"
 #include "assert-macros.h"
 
 /*	cat /proc/iomem ouput:
@@ -71,29 +70,12 @@ void mgp_set_mode(uint32_t pin, uint32_t mode)
 	gpio[reg] = (gpio[reg] & ~(clr_mask <<shift)) | (mode_mask <<shift);
 }
 
-void mgp_xy_set(uint32_t x, uint32_t y)
-{
-    GPIO_OFFSET_PTR(gpio, GPSET0) = XY_TO_GPIO(x, y);
-}
-
-void mgp_xy_clr(uint32_t x, uint32_t y)
-{
-    GPIO_OFFSET_PTR(gpio, GPCLR0) = XY_TO_GPIO(x, y);
-}
-
-void mgp_bits_set(uint32_t bits)
+void mgp_set_pins(uint32_t bits)
 {
     GPIO_OFFSET_PTR(gpio, GPSET0) = bits;
 }
 
-void mgp_bits_clr(uint32_t bits)
+void mgp_clr_pins(uint32_t bits)
 {
     GPIO_OFFSET_PTR(gpio, GPCLR0) = bits;
-}
-
-void  mgp_blinkLED(uint32_t pin)
-{
-    GPIO_OFFSET_PTR(gpio, GPSET0) = (uint32_t)(1 << pin);
-    for (int x = 0; x < 50; x++) {}  // blocking delay hack using a simple loop
-    GPIO_OFFSET_PTR(gpio, GPCLR0) = (uint32_t)(1 << pin);
 }
