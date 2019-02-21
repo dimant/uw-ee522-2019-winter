@@ -10,30 +10,31 @@
 //  1  GND      GND
 //  2  V+       5v
 //  3  Vcc      GND
-//  4  RS       26
-//  5  R/W      GND we only ever read
-//  6  E        19
-//  7  DB0      13
-//  8  DB1       6
-//  9  DB2       5
-// 10  DB3      11
-// 11  DB4       9
-// 12  DB5      10
-// 13  DB6      22
-// 14  DB7      27
+//  4  RS       21
+//  5  R/W      20
+//  6  E        16
+//  7  DB0      12
+//  8  DB1       1
+//  9  DB2       7
+// 10  DB3       8
+// 11  DB4      25
+// 12  DB5      24
+// 13  DB6      23
+// 14  DB7      18
 // 15  LED+     5v
 // 16  LED-     GND
 
-#define LCD_PIN_RS  26
-#define LCD_PIN_E   19
-#define LCD_PIN_DB0 13
-#define LCD_PIN_DB1 6
-#define LCD_PIN_DB2 5
-#define LCD_PIN_DB3 11
-#define LCD_PIN_DB4 9
-#define LCD_PIN_DB5 10
-#define LCD_PIN_DB6 22
-#define LCD_PIN_DB7 27
+#define LCD_PIN_DB7 18
+#define LCD_PIN_DB6 23
+#define LCD_PIN_DB5 24
+#define LCD_PIN_DB4 25
+#define LCD_PIN_DB3  8
+#define LCD_PIN_DB2  7
+#define LCD_PIN_DB1  1
+#define LCD_PIN_DB0 12
+#define LCD_PIN_E   16
+#define LCD_PIN_RW  20
+#define LCD_PIN_RS  21
 
 #define LCD_CMD_CLR     0x01
 #define LCD_CMD_HOME    0x02
@@ -64,6 +65,8 @@
 
 #define LCD_CMD_EN      0x200
 
+#define LCD_CMD_RW      0x400
+
 #define LCD_TO_GPIO(x) \
     ((BIT_ISSET(x, 0) << LCD_PIN_DB0) | \
     ( BIT_ISSET(x, 1) << LCD_PIN_DB1) | \
@@ -73,8 +76,9 @@
     ( BIT_ISSET(x, 5) << LCD_PIN_DB5) | \
     ( BIT_ISSET(x, 6) << LCD_PIN_DB6) | \
     ( BIT_ISSET(x, 7) << LCD_PIN_DB7) | \
-    ( BIT_ISSET(x, 8) << LCD_PIN_RS) | \
-    ( BIT_ISSET(x, 9) << LCD_PIN_E))
+    ( BIT_ISSET(x, 8) << LCD_PIN_RS)  | \
+    ( BIT_ISSET(x, 9) << LCD_PIN_E)   | \
+    ( BIT_ISSET(x,10) << LCD_PIN_RW))
 
 uint32_t lcd_entry(uint32_t increment, uint32_t shift)
 {
@@ -177,23 +181,41 @@ uint32_t lcd_ddram(uint32_t address)
     return cmd;
 }
 
-void lcd_execute(uint32_t cmd, uint32_t microsec)
+uint32_t lcd_isbusy()
 {
-    uint32_t gpio = (uint32_t) LCD_TO_GPIO(cmd);
-    uint32_t gpio_en = gpio | LCD_CMD_EN;
+    uint32_t gpio = mgp_get_pins();
+    return gpio | LCD_CMD_RW;
+}
 
-    mgp_set_pins(gpio_en);
-    delay(microsec);
-    mgp_clr_pins(gpio_en);
+void lcd_enable()
+{
+    mgp_clr_pins(LCD_PIN_E);
+    delay(1);
+    mgp_set_pins(LCD_PIN_E);
+    delay(1);
+    mgp_clr_pins(LCD_PIN_E);
+    delay(100);
+}
+
+void lcd_execute(uint32_t cmd)
+{
+    uint32_t microsec = 100;
+    uint32_t gpio = (uint32_t) LCD_TO_GPIO(cmd);
 
     mgp_set_pins(gpio);
-    delay(microsec);
-    mgp_clr_pins(gpio);
+
+    lcd_enable();
+    
+    while (TRUE == lcd_isbusy())
+    {
+        delay(microsec);
+    }
 }
 
 void lcd_init()
 {
     mgp_set_mode(LCD_PIN_RS,  GPIO_MODE_OUTPUT);
+    mgp_set_mode(LCD_PIN_RW,  GPIO_MODE_INPUT);
     mgp_set_mode(LCD_PIN_E,   GPIO_MODE_OUTPUT);
     mgp_set_mode(LCD_PIN_DB0, GPIO_MODE_OUTPUT);
     mgp_set_mode(LCD_PIN_DB1, GPIO_MODE_OUTPUT);
@@ -205,8 +227,8 @@ void lcd_init()
     mgp_set_mode(LCD_PIN_DB7, GPIO_MODE_OUTPUT);
 
     mgp_clr_pins(
-        LCD_PIN_RS |
-        LCD_PIN_E |
+        LCD_PIN_RS  |
+        LCD_PIN_E   |
         LCD_PIN_DB0 |
         LCD_PIN_DB1 |
         LCD_PIN_DB2 |
@@ -216,23 +238,28 @@ void lcd_init()
         LCD_PIN_DB6 |
         LCD_PIN_DB7);
 
-    lcd_execute(lcd_fun(0, 1, 1), 15000);
+    lcd_execute(lcd_fun(1, 1, 0));
+    delay(4500);
 
-    lcd_execute(lcd_fun(0, 1, 1), 4100);
+    lcd_execute(lcd_fun(1, 1, 0));
+    delay(150);
 
-    lcd_execute(lcd_fun(0, 1, 1), 100);
+    lcd_execute(lcd_fun(1, 1, 0));
 
-    lcd_execute(lcd_on(0, 0, 0), 100);
-    lcd_execute(LCD_CMD_CLR, 100);
-    lcd_execute(LCD_CMD_HOME, 100);
-    lcd_execute(lcd_entry(1, 0), 100);
+    lcd_execute(lcd_on(1, 0, 0));
+
+    lcd_execute(LCD_CMD_CLR);
+    delay(2000);
+    lcd_execute(LCD_CMD_HOME);
+    delay(2000);
+    lcd_execute(lcd_entry(1, 0));
 }
 
 void lcd_terminate()
 {
-    lcd_execute(LCD_CMD_CLR, 100);
-    lcd_execute(LCD_CMD_HOME, 100);
-    lcd_execute(lcd_on(0, 0, 0), 100);
+    lcd_execute(LCD_CMD_CLR);
+    lcd_execute(LCD_CMD_HOME);
+    lcd_execute(lcd_on(0, 0, 0));
 }
 
 void lcd_putc(uint32_t line, uint32_t pos, uint32_t c)
@@ -255,8 +282,8 @@ void lcd_putc(uint32_t line, uint32_t pos, uint32_t c)
 
     addr += pos;
 
-    lcd_execute(lcd_ddram(addr), 100);
+    lcd_execute(lcd_ddram(addr));
     
-    lcd_execute(LCD_CMD_EN | LCD_CMD_RS | c, 100);
-    lcd_execute(LCD_CMD_RS | c, 100);
+    lcd_execute(LCD_CMD_EN | LCD_CMD_RS | c);
+    lcd_execute(LCD_CMD_RS | c);
 }
