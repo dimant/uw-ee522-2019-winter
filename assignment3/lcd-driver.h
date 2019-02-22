@@ -7,9 +7,6 @@ void lcd_init();
 
 void lcd_terminate();
 
-void lcd_putc(
-    uint32_t line,
-    uint32_t pos,
-    uint32_t c);
+void lcd_putc(uint32_t c);
 
 #endif

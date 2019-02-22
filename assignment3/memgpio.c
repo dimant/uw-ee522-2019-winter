@@ -8,6 +8,8 @@
 
 #include "memgpio.h"
 #include "assert-macros.h"
+#include "type-macros.h"
+#include "delay.h"
 
 /*	cat /proc/iomem ouput:
     00000000-00000000 : /soc/gpio@7e200000 */
@@ -16,12 +18,15 @@
 
 /*	from bcm2835 peripherals doc
     https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf */
-#define GPSET0 0x1c
-#define GPSET1 0x20
-#define GPCLR0 0x28
-#define GPCLR1 0x2c
-#define GPLEV0 0x34
-#define GPLEV1 0x38
+#define GPSET0      0x1c
+#define GPSET1      0x20
+#define GPCLR0      0x28
+#define GPCLR1      0x2c
+#define GPLEV0      0x34
+#define GPLEV1      0x38
+#define GPPUD       0x94
+#define	GPPUDCLK0   0x98
+#define	GPPUDCLK1   0x9C
 
 static volatile uint32_t *gpio;
 static int fd;
@@ -56,6 +61,18 @@ void mgp_terminate()
 
 void mgp_set_mode(uint32_t pin, uint32_t mode)
 {
+    ASSERT(pin >= 0);
+    ASSERT(pin < 32);
+    ASSERT(
+        mode == GPIO_MODE_INPUT  ||
+        mode == GPIO_MODE_OUTPUT ||
+        mode == GPIO_MODE_ALT0   ||
+        mode == GPIO_MODE_ALT1   ||
+        mode == GPIO_MODE_ALT2   ||
+        mode == GPIO_MODE_ALT3   ||
+        mode == GPIO_MODE_ALT4   ||
+        mode == GPIO_MODE_ALT5);
+
 	// per the doc (page 91, Table 6.2 and following), pins are occupying registries of 32 bit
 	// 10 pins per register, 3 bits per pin, remaining 2 bits are reserved
 	// https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
@@ -68,6 +85,23 @@ void mgp_set_mode(uint32_t pin, uint32_t mode)
 	// then we apply the requested mode
 	// finally we copy back to the register
 	gpio[reg] = (gpio[reg] & ~(clr_mask <<shift)) | (mode_mask <<shift);
+}
+
+void mgp_set_upd(uint32_t pin, uint32_t pud)
+{
+    ASSERT(pin >= 0);
+    ASSERT(pin < 32);
+    ASSERT(pud == GPIO_UP || pud == GPIO_DN);
+
+    GPIO_OFFSET_PTR(gpio, GPPUD) = pud;
+    delay(5);
+    GPIO_OFFSET_PTR(gpio, GPPUDCLK0) = (uint32_t) (1 << pin);
+    delay(5);
+
+    GPIO_OFFSET_PTR(gpio, GPPUD) = 0;
+    delay(5);
+    GPIO_OFFSET_PTR(gpio, GPPUDCLK0) = 0;
+    delay(5);
 }
 
 void mgp_set_pins(uint32_t bits)

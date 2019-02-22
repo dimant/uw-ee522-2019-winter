@@ -1,5 +1,7 @@
 #include "lcd-driver.h"
 
+#include <stdlib.h>
+
 #include "memgpio.h"
 #include "type-macros.h"
 #include "assert-macros.h"
@@ -36,36 +38,37 @@
 #define LCD_PIN_RW  20
 #define LCD_PIN_RS  21
 
-#define LCD_CMD_CLR     0x01
-#define LCD_CMD_HOME    0x02
+#define LCD_CMD_CLR     1
+#define LCD_CMD_HOME    2
 
-#define LCD_CMD_ENTRY   0x04 
-#define LCD_CMD_ENTRY_I 0x02 // 1: increment / 0: decrement cursor position
-#define LCD_CMD_ENTRY_S 0x01 // 1: shift display / 0: no shift
+#define LCD_CMD_ENTRY   (1 << 2)
+#define LCD_CMD_ENTRY_I (1 << 1)  // 1: increment / 0: decrement cursor position
+#define LCD_CMD_ENTRY_S 1         // 1: shift display / 0: no shift
 
-#define LCD_CMD_ON      0x08 // turn on / off
-#define LCD_CMD_ON_DISP 0x04 // display
-#define LCD_CMD_ON_CURS 0x02 // cursor
-#define LCD_CMD_ON_BLIN 0x01 // blinking of cursor or character
+#define LCD_CMD_ON      (1 << 3)  // turn on / off
+#define LCD_CMD_ON_DISP (1 << 2)  // display
+#define LCD_CMD_ON_CURS (1 << 1)  // cursor
+#define LCD_CMD_ON_BLIN 1         // blinking of cursor or character
 
-#define LCD_CMD_SHIFT   0x10
-#define LCD_CMD_SHIFT_S 0x08 // 1: move cursor / 0: move display
-#define LCD_CMD_SHIFT_R 0x04 // 1: right / 0: left
+#define LCD_CMD_SHIFT   (1 << 4)
+#define LCD_CMD_SHIFT_S (1 << 3)  // 1: move cursor / 0: move display
+#define LCD_CMD_SHIFT_R (1 << 2)  // 1: right / 0: left
 
-#define LCD_CMD_FUN     0x20
-#define LCD_CMD_FUN_DL  0x10 // data length 1: 4 bit / 0: 8 bit
-#define LCD_CMD_FUN_N   0x08 // 1: 2 lines / 0: 1 line
-#define LCD_CMD_FUN_F   0x04 // 1: 5x10 dots / 5x7 dots
+#define LCD_CMD_FUN     (1 << 5)
+#define LCD_CMD_FUN_DL  (1 << 4)  // data length 1: 4 bit / 0: 8 bit
+#define LCD_CMD_FUN_N   (1 << 3)  // 1: 2 lines / 0: 1 line
+#define LCD_CMD_FUN_F   (1 << 2)  // 1: 5x10 dots / 5x7 dots
 
-#define LCD_CMD_CGRAM   0x40 // remaining 6 bits describe CGRAM address
+#define LCD_CMD_CGRAM   (1 << 6) // remaining 6 bits describe CGRAM address
 
-#define LCD_CMD_DDRAM   0x80 // remaining 7 bits describe DDRAM address
+#define LCD_CMD_DDRAM   (1 << 7) // remaining 7 bits describe DDRAM address
 
-#define LCD_CMD_RS      0x100
+#define LCD_CMD_RS      (1 << 8)
 
-#define LCD_CMD_EN      0x200
-
-#define LCD_CMD_RW      0x400
+// line1: 0x00..0x0F
+// line2: 0x40..0x4F
+#define LCD_LINE_1      0x00
+#define LCD_LINE_2      0x40
 
 #define LCD_TO_GPIO(x) \
     ((BIT_ISSET(x, 0) << LCD_PIN_DB0) | \
@@ -76,9 +79,7 @@
     ( BIT_ISSET(x, 5) << LCD_PIN_DB5) | \
     ( BIT_ISSET(x, 6) << LCD_PIN_DB6) | \
     ( BIT_ISSET(x, 7) << LCD_PIN_DB7) | \
-    ( BIT_ISSET(x, 8) << LCD_PIN_RS)  | \
-    ( BIT_ISSET(x, 9) << LCD_PIN_E)   | \
-    ( BIT_ISSET(x,10) << LCD_PIN_RW))
+    ( BIT_ISSET(x, 8) << LCD_PIN_RS))
 
 uint32_t lcd_entry(uint32_t increment, uint32_t shift)
 {
@@ -184,93 +185,40 @@ uint32_t lcd_ddram(uint32_t address)
 uint32_t lcd_isbusy()
 {
     uint32_t gpio = mgp_get_pins();
-    return gpio | LCD_CMD_RW;
+    return gpio | PIN_BIT(LCD_PIN_RW);
 }
 
 void lcd_enable()
 {
-    mgp_clr_pins(LCD_PIN_E);
+    mgp_clr_pins(PIN_BIT(LCD_PIN_E));
     delay(1);
-    mgp_set_pins(LCD_PIN_E);
+    mgp_set_pins(PIN_BIT(LCD_PIN_E));
     delay(1);
-    mgp_clr_pins(LCD_PIN_E);
+    mgp_clr_pins(PIN_BIT(LCD_PIN_E));
     delay(100);
 }
 
 void lcd_execute(uint32_t cmd)
 {
-    uint32_t microsec = 100;
+    //uint32_t microsec = 100;
     uint32_t gpio = (uint32_t) LCD_TO_GPIO(cmd);
 
     mgp_set_pins(gpio);
 
     lcd_enable();
+
+    mgp_clr_pins(gpio);
     
-    while (TRUE == lcd_isbusy())
-    {
-        delay(microsec);
-    }
+    //while (TRUE == lcd_isbusy())
+    //{
+    //    delay(microsec);
+    //}
 }
 
-void lcd_init()
+void lcd_goto(uint32_t line, uint32_t pos)
 {
-    mgp_set_mode(LCD_PIN_RS,  GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_RW,  GPIO_MODE_INPUT);
-    mgp_set_mode(LCD_PIN_E,   GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB0, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB1, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB2, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB3, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB4, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB5, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB6, GPIO_MODE_OUTPUT);
-    mgp_set_mode(LCD_PIN_DB7, GPIO_MODE_OUTPUT);
-
-    mgp_clr_pins(
-        LCD_PIN_RS  |
-        LCD_PIN_E   |
-        LCD_PIN_DB0 |
-        LCD_PIN_DB1 |
-        LCD_PIN_DB2 |
-        LCD_PIN_DB3 |
-        LCD_PIN_DB4 |
-        LCD_PIN_DB5 |
-        LCD_PIN_DB6 |
-        LCD_PIN_DB7);
-
-    lcd_execute(lcd_fun(1, 1, 0));
-    delay(4500);
-
-    lcd_execute(lcd_fun(1, 1, 0));
-    delay(150);
-
-    lcd_execute(lcd_fun(1, 1, 0));
-
-    lcd_execute(lcd_on(1, 0, 0));
-
-    lcd_execute(LCD_CMD_CLR);
-    delay(2000);
-    lcd_execute(LCD_CMD_HOME);
-    delay(2000);
-    lcd_execute(lcd_entry(1, 0));
-}
-
-void lcd_terminate()
-{
-    lcd_execute(LCD_CMD_CLR);
-    lcd_execute(LCD_CMD_HOME);
-    lcd_execute(lcd_on(0, 0, 0));
-}
-
-void lcd_putc(uint32_t line, uint32_t pos, uint32_t c)
-{
-    ASSERT(line > 0);
-    ASSERT(line <= 2);
-    ASSERT(pos >= 0);
-    ASSERT(pos <= 0x0F);
-    ASSERT(c >= 0);
-    ASSERT(c < 0xFF);
-
+    ASSERT(line == 1 || line == 2);
+    ASSERT(pos < 16);
     uint32_t addr = 0;
 
     // line1: 0x00..0x0F
@@ -283,7 +231,109 @@ void lcd_putc(uint32_t line, uint32_t pos, uint32_t c)
     addr += pos;
 
     lcd_execute(lcd_ddram(addr));
-    
-    lcd_execute(LCD_CMD_EN | LCD_CMD_RS | c);
+    delay(50);
+}
+
+void lcd_putc(uint32_t c)
+{
+    ASSERT(c < 256);
+
     lcd_execute(LCD_CMD_RS | c);
+    delay(50);
+}
+
+void lcd_init()
+{
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_RS,  GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_DN);
+    mgp_set_mode(LCD_PIN_RW,  GPIO_MODE_INPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_E,   GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB0, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB1, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB2, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB3, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB4, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB5, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB6, GPIO_MODE_OUTPUT);
+
+    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
+    mgp_set_mode(LCD_PIN_DB7, GPIO_MODE_OUTPUT);
+
+    mgp_clr_pins(
+        PIN_BIT(LCD_PIN_RS)  |
+        PIN_BIT(LCD_PIN_E)   |
+        PIN_BIT(LCD_PIN_DB0) |
+        PIN_BIT(LCD_PIN_DB1) |
+        PIN_BIT(LCD_PIN_DB2) |
+        PIN_BIT(LCD_PIN_DB3) |
+        PIN_BIT(LCD_PIN_DB4) |
+        PIN_BIT(LCD_PIN_DB5) |
+        PIN_BIT(LCD_PIN_DB6) |
+        PIN_BIT(LCD_PIN_DB7));
+
+    delay(40000);
+
+    lcd_execute(0x33);
+    delay(4500);
+
+    lcd_execute(0x32);
+    delay(150);
+
+    lcd_execute(0x30);
+    delay(50);
+
+    // increment cursor position, no display shift
+    lcd_execute(lcd_entry(1, 0));
+    delay(50);
+
+    // display on, cursor off, blink off
+    lcd_execute(lcd_on(1, 0, 0));
+    delay(50);
+
+    // 8 bit, 2 lines, 5x8 font
+    lcd_execute(lcd_fun(1, 1, 0));
+    delay(50);
+
+    // clear display
+    lcd_execute(LCD_CMD_CLR);
+    delay(2000);
+
+    // go to home
+    lcd_execute(LCD_CMD_HOME);
+    delay(2000);
+
+    lcd_goto(1, 0);
+    lcd_putc(65);
+    lcd_putc(65);
+    lcd_putc(65);
+    lcd_putc(65);
+    lcd_putc(65);
+    lcd_putc(65);
+}
+
+void lcd_terminate()
+{
+    lcd_execute(LCD_CMD_CLR);
+    delay(2000);
+    lcd_execute(LCD_CMD_HOME);
+    delay(2000);
+    lcd_execute(lcd_on(0, 0, 0));
 }
