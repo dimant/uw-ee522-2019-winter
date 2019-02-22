@@ -200,7 +200,6 @@ void lcd_enable()
 
 void lcd_execute(uint32_t cmd)
 {
-    //uint32_t microsec = 100;
     uint32_t gpio = (uint32_t) LCD_TO_GPIO(cmd);
 
     mgp_set_pins(gpio);
@@ -208,11 +207,6 @@ void lcd_execute(uint32_t cmd)
     lcd_enable();
 
     mgp_clr_pins(gpio);
-    
-    //while (TRUE == lcd_isbusy())
-    //{
-    //    delay(microsec);
-    //}
 }
 
 void lcd_goto(uint32_t line, uint32_t pos)
@@ -244,38 +238,25 @@ void lcd_putc(uint32_t c)
 
 void lcd_init()
 {
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_RS,  GPIO_MODE_OUTPUT);
+    uint32_t pins[] = { 
+        LCD_PIN_RS,
+        LCD_PIN_RW,
+        LCD_PIN_E,
+        LCD_PIN_DB0,
+        LCD_PIN_DB1,
+        LCD_PIN_DB2,
+        LCD_PIN_DB3,
+        LCD_PIN_DB4,
+        LCD_PIN_DB5,
+        LCD_PIN_DB6,
+        LCD_PIN_DB6
+    };
 
-    mgp_set_upd(LCD_PIN_RS, GPIO_DN);
-    mgp_set_mode(LCD_PIN_RW,  GPIO_MODE_INPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_E,   GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB0, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB1, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB2, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB3, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB4, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB5, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB6, GPIO_MODE_OUTPUT);
-
-    mgp_set_upd(LCD_PIN_RS, GPIO_UP);
-    mgp_set_mode(LCD_PIN_DB7, GPIO_MODE_OUTPUT);
+    for (uint32_t pin = 0; pin < 11; pin++)
+    {
+        mgp_set_upd(pins[pin], GPIO_UP);
+        mgp_set_mode(pins[pin], GPIO_MODE_OUTPUT);
+    }
 
     mgp_clr_pins(
         PIN_BIT(LCD_PIN_RS)  |
@@ -319,14 +300,6 @@ void lcd_init()
     // go to home
     lcd_execute(LCD_CMD_HOME);
     delay(2000);
-
-    lcd_goto(1, 0);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
 }
 
 void lcd_terminate()
