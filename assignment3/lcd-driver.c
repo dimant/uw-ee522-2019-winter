@@ -164,28 +164,22 @@ uint32_t lcd_fun(uint32_t datalen, uint32_t lines, uint32_t font)
 
 uint32_t lcd_cgram(uint32_t address)
 {
+    ASSERT(address < 64)
     uint32_t cmd = LCD_CMD_CGRAM;
 
-    // only consider last 6 bits
-    cmd |= (address & 0x3F);
+    cmd |= address;
 
     return cmd;
 }
 
 uint32_t lcd_ddram(uint32_t address)
 {
+    ASSERT(address < 128);
     uint32_t cmd = LCD_CMD_DDRAM;
 
-    // only consider last 7 bits
-    cmd |= (address & 0x7F);
+    cmd |= address;
 
     return cmd;
-}
-
-uint32_t lcd_isbusy()
-{
-    uint32_t gpio = mgp_get_pins();
-    return gpio | PIN_BIT(LCD_PIN_RW);
 }
 
 void lcd_enable()
