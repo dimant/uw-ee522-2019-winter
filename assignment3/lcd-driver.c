@@ -1,6 +1,11 @@
-#include "lcd-driver.h"
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
 
 #include <stdlib.h>
+#include <string.h>
+
+#include "lcd-driver.h"
 
 #include "memgpio.h"
 #include "type-macros.h"
@@ -69,6 +74,8 @@
 // line2: 0x40..0x4F
 #define LCD_LINE_1      0x00
 #define LCD_LINE_2      0x40
+
+#define LCD_LINE_LEN    16
 
 #define LCD_TO_GPIO(x) \
     ((BIT_ISSET(x, 0) << LCD_PIN_DB0) | \
@@ -201,6 +208,8 @@ void lcd_execute(uint32_t cmd)
     lcd_enable();
 
     mgp_clr_pins(gpio);
+
+    delay(50);
 }
 
 void lcd_goto(uint32_t line, uint32_t pos)
@@ -219,7 +228,6 @@ void lcd_goto(uint32_t line, uint32_t pos)
     addr += pos;
 
     lcd_execute(lcd_ddram(addr));
-    delay(50);
 }
 
 void lcd_putc(uint32_t c)
@@ -227,7 +235,20 @@ void lcd_putc(uint32_t c)
     ASSERT(c < 256);
 
     lcd_execute(LCD_CMD_RS | c);
-    delay(50);
+}
+
+void lcd_puts(char* str)
+{
+    ASSERT(str != NULL);
+    uint32_t strn = (uint32_t) strnlen(str, LCD_LINE_LEN + 1);
+    ASSERT(strn < LCD_LINE_LEN + 1);
+
+    for (uint32_t c = 0; c < strn; c++)
+    {
+        // per spec the HD44780U ROM can comes with 208 5x8 characters
+        ASSERT(str[c] < 208);
+        lcd_putc((uint32_t)str[c]);
+    }
 }
 
 void lcd_init()
@@ -270,30 +291,26 @@ void lcd_init()
     delay(4500);
 
     lcd_execute(0x32);
-    delay(150);
+    delay(100);
 
     lcd_execute(0x30);
-    delay(50);
 
     // increment cursor position, no display shift
     lcd_execute(lcd_entry(1, 0));
-    delay(50);
 
     // display on, cursor off, blink off
     lcd_execute(lcd_on(1, 0, 0));
-    delay(50);
 
     // 8 bit, 2 lines, 5x8 font
     lcd_execute(lcd_fun(1, 1, 0));
-    delay(50);
 
     // clear display
     lcd_execute(LCD_CMD_CLR);
-    delay(2000);
+    delay(1950);
 
     // go to home
     lcd_execute(LCD_CMD_HOME);
-    delay(2000);
+    delay(1950);
 }
 
 void lcd_terminate()

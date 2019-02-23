@@ -1,5 +1,10 @@
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "memgpio.h"
 #include "lcd-driver.h"
@@ -49,13 +54,11 @@ int main(int argc, char* argv[])
     mgp_init();
     lcd_init();
 
+    char* hello = strndup("Hello World!", 12);
+
     lcd_goto(1, 0);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
-    lcd_putc(65);
+    
+    lcd_puts(hello);
 
     lcd_terminate();
     mgp_terminate();
