@@ -28,6 +28,11 @@ void sfx_create_dash(
     uint32_t freq,
     uint32_t wpm);
 
+void sfx_create_sine(
+    effect_t* effect,
+    uint32_t freq,
+    uint32_t ms);
+
 void sfx_create_pew(effect_t* effect);
 
 #endif

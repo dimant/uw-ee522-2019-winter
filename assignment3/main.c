@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "memgpio.h"
 #include "lcd-driver.h"
@@ -23,45 +24,102 @@
 // These durations are defined as per:
 // http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm
 
-inline uint32_t morse_dot_duration(uint32_t wpm)
+static inline uint32_t morse_dot_duration(uint32_t wpm)
 {
-    // dots per second is calculated as wpm * 2.4
-    //
+    // Speed (WPM) = 2.4 * (Dots per second)
+    // -> wpm / 2.4 = dps
+    // 
     // then divide 1 / (wpm 2.4) to get seconds per dot
-    // finally multiply the result by 1000 to get milliseconds
-    return (uint32_t)((1.000f / 2.4f) / (float)wpm);
+    // finally multiply the result by 1000 to get millise conds
+    return (uint32_t)ceilf( 1000.0f / ((float) wpm / 2.4f));
 }
 
-inline uint32_t morse_dot_character_duration(uint32_t wpm)
+static inline uint32_t morse_dash_duration(uint32_t wpm)
+{
+    return morse_dot_duration(wpm) * 3;
+}
+
+static inline uint32_t morse_dot_character_duration(uint32_t wpm)
 {
     // 1 dot length for the signal, 1 dot length of silence
     return morse_dot_duration(wpm) * 2;
 }
 
-inline uint32_t morse_dash_character_duration(uint32_t wpm)
+static inline uint32_t morse_dash_character_duration(uint32_t wpm)
 {
     // 3 dot lengths for the signal, 1 dot length of silence
     return morse_dot_duration(wpm) * 4;
 }
 
-inline uint32_t morse_word_space_duration(uint32_t wpm)
+static inline uint32_t morse_word_space_duration(uint32_t wpm)
 {
     return morse_dot_duration(wpm) * 7;
 }
 
 int main(int argc, char* argv[])
 {
+    audio_t audio_device;
+    audio_device.name = "default";
+    audio_device.sampling_rate = 16000;
+    audio_device.channels = 1;
+    
+    audio_init(&audio_device);
     mgp_init();
     lcd_init();
 
+    mgp_set_mode(DASH_PIN, GPIO_MODE_INPUT);
+    mgp_set_mode(DOT_PIN, GPIO_MODE_INPUT);
+
+    uint32_t dot_ms = morse_dot_duration(WPM);
+    uint32_t dash_ms = morse_dash_duration(WPM);
+
+    effect_t dot_sound;
+    dot_sound.buffer = NULL;
+    dot_sound.size = 0;
+    dot_sound.sampling_rate = audio_device.sampling_rate;
+    sfx_create_sine(&dot_sound, FREQ, dot_ms);
+
+    effect_t dash_sound;
+    dash_sound.buffer = NULL;
+    dash_sound.size = 0;
+    dash_sound.sampling_rate = audio_device.sampling_rate;
+    sfx_create_sine(&dash_sound, FREQ, dash_ms);
+
+    uint32_t pins;
     char* hello = strndup("Hello World!", 12);
+    float audio_buffer[audio_device.frames * 10];
 
     lcd_goto(1, 0);
-    
     lcd_puts(hello);
+
+    while (1)
+    {
+        pins = mgp_get_pins();
+    
+        if (BIT_ISSET(pins, DASH_PIN))
+        {
+            while (sfx_get_period(&dash_sound, audio_buffer, audio_device.frames))
+            {
+                audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+            }
+            dash_sound.cursor = 0;
+        }
+        else if (BIT_ISSET(pins, DOT_PIN))
+        {
+            while (sfx_get_period(&dot_sound, audio_buffer, audio_device.frames))
+            {
+                audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+            }
+            dot_sound.cursor = 0;
+        }
+    
+        delay(100000);
+    }
 
     lcd_terminate();
     mgp_terminate();
+    audio_terminate(&audio_device);
+    sfx_destroy(&dash_sound);
     return 0;
 }
 

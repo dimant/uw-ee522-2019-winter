@@ -199,7 +199,7 @@ void audio_sin(
         uint32_t    period,
         uint32_t    chunk)
 {
-    float fact = 2.0f * (float)M_PI * (float)angle;
+    float fact = 2.0f * (float)M_PI * angle;
     uint32_t offset = chunk * samples % period;
 
     for(uint32_t s = offset; s < samples + offset; s++)

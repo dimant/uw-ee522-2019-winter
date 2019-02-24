@@ -39,6 +39,25 @@ void sfx_destroy(effect_t* effect)
     effect->sampling_rate = 0;
 }
 
+void sfx_create_sine(effect_t* effect, uint32_t freq, uint32_t ms)
+{
+    ASSERT(ms > 0);
+    ASSERT(effect->sampling_rate > 0);
+    ASSERT(effect->buffer == NULL);
+    ASSERT(effect->size == 0);
+
+    const uint32_t samples = ms * effect->sampling_rate / 1000;
+    uint32_t period = effect->sampling_rate / freq;
+    float angle = (float)freq / (float)effect->sampling_rate;
+
+    effect->buffer = (float*)malloc(sizeof(float) * samples);
+
+    audio_sin(effect->buffer, samples, angle, period, 0);
+
+    effect->size = samples;
+    effect->cursor = 0;
+}
+
 void sfx_create_dot(effect_t* effect, uint32_t freq, uint32_t wpm)
 {
     ASSERT(effect->sampling_rate > 0);
