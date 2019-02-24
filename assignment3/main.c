@@ -7,19 +7,19 @@
 #include <string.h>
 #include <math.h>
 
+#include "delay.h"
+#include "my-clock.h"
 #include "memgpio.h"
 #include "lcd-driver.h"
-#include "delay.h"
-
 #include "audio.h"
 
 #include "sfx.h"
 
-#define DASH_PIN 19
-#define DOT_PIN  26
+#define DASH_PIN 26
+#define DOT_PIN  19
 
 #define FREQ 770
-#define WPM 15
+#define WPM 20
 
 // These durations are defined as per:
 // http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm
@@ -71,7 +71,9 @@ int main(int argc, char* argv[])
     mgp_set_mode(DOT_PIN, GPIO_MODE_INPUT);
 
     uint32_t dot_ms = morse_dot_duration(WPM);
+    uint64_t dot_char_ms = 2 * dot_ms;
     uint32_t dash_ms = morse_dash_duration(WPM);
+    uint64_t dash_char_ms = 4 * dot_ms;
 
     effect_t dot_sound;
     dot_sound.buffer = NULL;
@@ -89,31 +91,42 @@ int main(int argc, char* argv[])
     char* hello = strndup("Hello World!", 12);
     float audio_buffer[audio_device.frames * 10];
 
+    uint64_t start = 1;
+    uint64_t end = 0;
+
     lcd_goto(1, 0);
     lcd_puts(hello);
 
     while (1)
     {
         pins = mgp_get_pins();
+        start = my_clock_gettime();
     
-        if (BIT_ISSET(pins, DASH_PIN))
+        if (start > end)
         {
-            while (sfx_get_period(&dash_sound, audio_buffer, audio_device.frames))
+            if (BIT_ISSET(pins, DASH_PIN))
             {
-                audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+                end = start + dash_char_ms;
+
+                while (sfx_get_period(&dash_sound, audio_buffer, audio_device.frames))
+                {
+                    audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+                }
+                dash_sound.cursor = 0;
             }
-            dash_sound.cursor = 0;
-        }
-        else if (BIT_ISSET(pins, DOT_PIN))
-        {
-            while (sfx_get_period(&dot_sound, audio_buffer, audio_device.frames))
+            else if (BIT_ISSET(pins, DOT_PIN))
             {
-                audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+                end = start + dot_char_ms;
+
+                while (sfx_get_period(&dot_sound, audio_buffer, audio_device.frames))
+                {
+                    audio_write(audio_device.handle, audio_buffer, audio_device.frames);
+                }
+                dot_sound.cursor = 0;
             }
-            dot_sound.cursor = 0;
         }
     
-        delay(100000);
+        delay(1);
     }
 
     lcd_terminate();
