@@ -50,9 +50,23 @@ void sfx_create_sine(effect_t* effect, uint32_t freq, uint32_t ms)
     uint32_t period = effect->sampling_rate / freq;
     float angle = (float)freq / (float)effect->sampling_rate;
 
+    float attack_percent = 10.0f;
+    uint32_t attack = (uint32_t)ceilf((float)samples / attack_percent);
+    uint32_t decay = samples - attack;
+
     effect->buffer = (float*)malloc(sizeof(float) * samples);
 
     audio_sin(effect->buffer, samples, angle, period, 0);
+
+    for (uint32_t i = 0; i < attack; i++)
+    {
+        effect->buffer[i] *= (float) i / (float)attack;
+    }
+
+    for (uint32_t i = 0; i < attack; i++)
+    {
+        effect->buffer[decay + i] *= 1.0f - (float)i / (float)attack;
+    }
 
     effect->size = samples;
     effect->cursor = 0;
