@@ -21,11 +21,14 @@
   <ItemGroup>
     <ClCompile Include="audio.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="morse.c" />
     <ClCompile Include="queue.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assert-macros.h" />
     <ClInclude Include="audio.h" />
     <ClInclude Include="minunit.h" />
+    <ClInclude Include="morse.h" />
     <ClInclude Include="queue.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

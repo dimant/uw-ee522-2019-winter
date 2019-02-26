@@ -21,41 +21,6 @@
 #define FREQ 770
 #define WPM 20
 
-// These durations are defined as per:
-// http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm
-
-static inline uint32_t morse_dot_duration(uint32_t wpm)
-{
-    // Speed (WPM) = 2.4 * (Dots per second)
-    // -> wpm / 2.4 = dps
-    // 
-    // then divide 1 / (wpm 2.4) to get seconds per dot
-    // finally multiply the result by 1000 to get millise conds
-    return (uint32_t)ceilf( 1000.0f / ((float) wpm / 2.4f));
-}
-
-static inline uint32_t morse_dash_duration(uint32_t wpm)
-{
-    return morse_dot_duration(wpm) * 3;
-}
-
-static inline uint32_t morse_dot_character_duration(uint32_t wpm)
-{
-    // 1 dot length for the signal, 1 dot length of silence
-    return morse_dot_duration(wpm) * 2;
-}
-
-static inline uint32_t morse_dash_character_duration(uint32_t wpm)
-{
-    // 3 dot lengths for the signal, 1 dot length of silence
-    return morse_dot_duration(wpm) * 4;
-}
-
-static inline uint32_t morse_word_space_duration(uint32_t wpm)
-{
-    return morse_dot_duration(wpm) * 7;
-}
-
 int main(int argc, char* argv[])
 {
     audio_t audio_device;

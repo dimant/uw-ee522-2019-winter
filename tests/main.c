@@ -6,6 +6,7 @@
 
 #include "queue.h"
 #include "audio.h"
+#include "morse.h"
 
 #define epsilon 0.000001
 #define FCOMP(x, y) (fabs(x - y) < epsilon)
@@ -23,6 +24,7 @@ const char * test_create()
     mu_assert("queue remaining bytes is not 10", queue._remaining == 10);
     mu_assert("queue in ptr is not 0", queue._in == 0);
     mu_assert("queue out ptr is not 0", queue._out == 0);
+
     return NULL;
 }
 
@@ -38,6 +40,7 @@ const char * test_delete()
     mu_assert("queue remaining bytes is not 0", queue._remaining == 0);
     mu_assert("queue in ptr is not 0", queue._in == 0);
     mu_assert("queue out ptr is not 0", queue._out == 0);
+
     return NULL;
 }
 
@@ -57,6 +60,7 @@ const char * test_put()
     mu_assert("queue out ptr is not 0", queue._out == 0);
 
     queue_delete(&queue);
+
     return NULL;
 }
 
@@ -80,6 +84,7 @@ const char * test_get()
     mu_assert("output[2] < 0", output[2] > -0.5f);
 
     queue_delete(&queue);
+
     return NULL;
 }
 
@@ -109,6 +114,7 @@ const char * test_wrap()
     mu_assert("output[2] != 9.0f", fabs(output[2] - 9.0f) < 0.1);
 
     queue_delete(&queue);
+
     return NULL;
 }
 
@@ -139,6 +145,7 @@ const char* test_audio_pulse()
     mu_assert("buffer[19] != 1.0f", FCOMP(buffer[19], 1.0f));
     mu_assert("buffer[20] != 0.0f", FCOMP(buffer[20], 0.0f));
     mu_assert("buffer[21] != -1.0f", FCOMP(buffer[21], 0.0f));
+
     return NULL;
 }
 
@@ -168,6 +175,59 @@ const char* test_audio_pulse_inverted()
     return NULL;
 }
 
+const char* test_morse_put()
+{
+    uint32_t morse = 0;
+
+    morse_put(&morse, MORSE_DOT);
+
+    mu_assert("morse.encoded is not 01", morse == 1);
+
+    return NULL;
+}
+
+const char* test_morse_put_two()
+{
+    uint32_t morse = 0;
+
+    morse_put(&morse, MORSE_DOT);
+    morse_put(&morse, MORSE_DASH);
+
+    mu_assert("morse is not 110", morse == 6);
+
+    return NULL;
+}
+
+const char* test_morse_decode_letter()
+{
+    uint32_t morse = 0;
+
+    morse_put(&morse, MORSE_DOT);
+    morse_put(&morse, MORSE_DASH);
+
+    char c = morse_decode(&morse);
+
+    mu_assert("character is not 'a'", c == 'a');
+
+    return NULL;
+}
+
+const char* test_morse_decode_number()
+{
+    uint32_t morse = 0;
+
+    morse_put(&morse, MORSE_DASH);
+    morse_put(&morse, MORSE_DASH);
+    morse_put(&morse, MORSE_DASH);
+    morse_put(&morse, MORSE_DASH);
+    morse_put(&morse, MORSE_DASH);
+
+    char c = morse_decode(&morse);
+
+    mu_assert("character is not '0'", c == '0');
+
+    return NULL;
+}
 
 const char * all_tests() {
     mu_run_test(test_create);
@@ -177,6 +237,10 @@ const char * all_tests() {
     mu_run_test(test_wrap);
     mu_run_test(test_audio_pulse);
     mu_run_test(test_audio_pulse_inverted);
+    mu_run_test(test_morse_put);
+    mu_run_test(test_morse_put_two);
+    mu_run_test(test_morse_decode_letter);
+    mu_run_test(test_morse_decode_number);
     return NULL;
 }
 
