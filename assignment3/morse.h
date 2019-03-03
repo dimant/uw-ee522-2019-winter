@@ -6,6 +6,10 @@
 #define MORSE_DOT   1
 #define MORSE_DASH  2
 
+#define MORSE_ALPHABET_LEN 36
+
+extern char morse_alphabet[];
+
 uint32_t morse_dot_duration(uint32_t wpm);
 
 uint32_t morse_dash_duration(uint32_t wpm);

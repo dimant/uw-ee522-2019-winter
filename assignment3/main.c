@@ -17,35 +17,13 @@
 #include "assert-macros.h"
 
 #include "sfx.h"
+#include "game.h"
 
 #define DASH_PIN 26
 #define DOT_PIN  19
 
 #define FREQ 770
 #define WPM 20
-
-void game_score(uint32_t score)
-{
-    ASSERT(score < 16);
-
-    static uint32_t initialized = FALSE;
-
-    if (FALSE == initialized)
-    {
-        char* label = strndup("Score: ", 8);
-        lcd_goto(1, 0);
-        lcd_puts(label);
-        initialized = TRUE;
-    }
-
-    ASSERT(TRUE == initialized);
-
-    char* score_str = malloc(sizeof(char) * 9);
-    snprintf(score_str, 9, "%i", score);
-
-    lcd_goto(1, 7);
-    lcd_puts(score_str);
-}
 
 int main(int argc, char* argv[])
 {
@@ -87,11 +65,7 @@ int main(int argc, char* argv[])
 
     uint32_t morse = 0;
 
-    //lcd_goto(1, 0);
-    //lcd_puts(hello);
-    //lcd_goto(2, 0);
-
-    game_score(0);
+    game_init();
 
     while (1)
     {

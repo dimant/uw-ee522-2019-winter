@@ -50,7 +50,7 @@
 //  9       ----.   1010101001  681
 //  0       -----   1010101010  682
 
-#define ALPHABET_LEN 36
+#define MORSE_ALPHABET_LEN 36
 
 uint32_t morse_map[] = {
     6, 149, 153, 37, 1, 89, 41, 85, 5, 106, 38, 101, 10, 9, 42,
@@ -58,7 +58,7 @@ uint32_t morse_map[] = {
     342, 341, 597, 661, 677, 681, 682
 };
 
-char alphabet[] = {
+char morse_alphabet[] = {
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
     'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
     'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
@@ -115,11 +115,11 @@ char morse_decode(uint32_t* morse)
     ASSERT(*morse < 700);
     ASSERT(*morse > 0);
 
-    for (uint32_t c = 0; c < ALPHABET_LEN; c++)
+    for (uint32_t c = 0; c < MORSE_ALPHABET_LEN; c++)
     {
         if (*morse == morse_map[c])
         {
-            return alphabet[c];
+            return morse_alphabet[c];
         }
     }
 

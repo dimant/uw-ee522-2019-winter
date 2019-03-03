@@ -82,6 +82,7 @@
     <ClCompile Include="delay.c" />
     <ClCompile Include="draw.c" />
     <ClCompile Include="engine.c" />
+    <ClCompile Include="game.c" />
     <ClCompile Include="joystick.c" />
     <ClCompile Include="lcd-driver.c" />
     <ClCompile Include="memgpio.c" />
@@ -99,6 +100,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="drawing-macros.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="joystick.h" />
     <ClInclude Include="lcd-driver.h" />
     <ClInclude Include="memgpio.h" />
