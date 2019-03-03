@@ -12,6 +12,9 @@
 #include "memgpio.h"
 #include "lcd-driver.h"
 #include "audio.h"
+#include "morse.h"
+#include "type-macros.h"
+#include "assert-macros.h"
 
 #include "sfx.h"
 
@@ -20,6 +23,29 @@
 
 #define FREQ 770
 #define WPM 20
+
+void game_score(uint32_t score)
+{
+    ASSERT(score < 16);
+
+    static uint32_t initialized = FALSE;
+
+    if (FALSE == initialized)
+    {
+        char* label = strndup("Score: ", 8);
+        lcd_goto(1, 0);
+        lcd_puts(label);
+        initialized = TRUE;
+    }
+
+    ASSERT(TRUE == initialized);
+
+    char* score_str = malloc(sizeof(char) * 9);
+    snprintf(score_str, 9, "%i", score);
+
+    lcd_goto(1, 7);
+    lcd_puts(score_str);
+}
 
 int main(int argc, char* argv[])
 {
@@ -53,14 +79,19 @@ int main(int argc, char* argv[])
     sfx_create_sine(&dash_sound, FREQ, dash_ms);
 
     uint32_t pins;
-    char* hello = strndup("Hello World!", 12);
+    //char* hello = strndup("Hello World!", 12);
     float audio_buffer[audio_device.frames * 10];
 
     uint64_t start = 1;
     uint64_t end = 0;
 
-    lcd_goto(1, 0);
-    lcd_puts(hello);
+    uint32_t morse = 0;
+
+    //lcd_goto(1, 0);
+    //lcd_puts(hello);
+    //lcd_goto(2, 0);
+
+    game_score(0);
 
     while (1)
     {
@@ -69,8 +100,16 @@ int main(int argc, char* argv[])
     
         if (start > end)
         {
+            if (start - end > dot_ms && morse > 0)
+            {
+                lcd_putc(morse_decode(&morse));
+                morse = 0;
+            }
+
             if (BIT_ISSET(pins, DASH_PIN))
             {
+                morse_put(&morse, MORSE_DASH);
+
                 end = start + dash_char_ms;
 
                 while (sfx_get_period(&dash_sound, audio_buffer, audio_device.frames))
@@ -81,6 +120,8 @@ int main(int argc, char* argv[])
             }
             else if (BIT_ISSET(pins, DOT_PIN))
             {
+                morse_put(&morse, MORSE_DOT);
+
                 end = start + dot_char_ms;
 
                 while (sfx_get_period(&dot_sound, audio_buffer, audio_device.frames))

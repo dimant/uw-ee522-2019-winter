@@ -86,6 +86,7 @@
     <ClCompile Include="lcd-driver.c" />
     <ClCompile Include="memgpio.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="morse.c" />
     <ClCompile Include="my-clock.c" />
     <ClCompile Include="queue.c" />
     <ClCompile Include="sfx.c" />
@@ -102,6 +103,7 @@
     <ClInclude Include="lcd-driver.h" />
     <ClInclude Include="memgpio.h" />
     <ClInclude Include="error-macros.h" />
+    <ClInclude Include="morse.h" />
     <ClInclude Include="my-clock.h" />
     <ClInclude Include="queue.h" />
     <ClInclude Include="sfx.h" />
