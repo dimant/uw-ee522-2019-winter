@@ -18,17 +18,18 @@
 
 static char charset[MAX_CHARS + 1];
 static uint32_t cursor;
+static uint32_t score;
 static uint32_t initialized = FALSE;
 
-void game_score(uint32_t score)
+void game_print_score(uint32_t value)
 {
-    ASSERT(score < 16);
+    ASSERT(value < 16);
 
     static uint32_t label_printed = FALSE;
 
     if (FALSE == initialized)
     {
-        char* label = strndup("Score: ", 8);
+        char* label = strndup("Score:   ", 10);
         lcd_goto(1, 0);
         lcd_puts(label);
         label_printed = TRUE;
@@ -36,11 +37,11 @@ void game_score(uint32_t score)
 
     ASSERT(TRUE == label_printed);
 
-    char* score_str = malloc(sizeof(char) * 9);
-    snprintf(score_str, 9, "%i", score);
+    char* string = malloc(sizeof(char) * 9);
+    snprintf(string, 9, "%i", value);
 
     lcd_goto(1, 7);
-    lcd_puts(score_str);
+    lcd_puts(string);
 }
 
 void game_init()
@@ -56,10 +57,38 @@ void game_init()
     charset[MAX_CHARS] = '\0';
 
     cursor = 0;
+    score = 0;
 
-    game_score(0);
+    game_print_score(score);
     lcd_goto(2, 0);
     lcd_puts(charset);
 
     initialized = TRUE;
+}
+
+void game_step(char c)
+{
+    ASSERT(TRUE == initialized);
+
+    if (cursor >= MAX_CHARS)
+    {
+        game_init();
+    }
+    else 
+    {
+        lcd_goto(2, cursor);
+
+        if (charset[cursor] == c)
+        {
+            lcd_putc('*');
+            score++;
+            game_print_score(score);
+        }
+        else
+        {
+            lcd_putc(' ');
+        }
+
+        cursor++;
+    }
 }

@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         {
             if (start - end > dot_ms && morse > 0)
             {
-                lcd_putc(morse_decode(&morse));
+                game_step(morse_decode(&morse));
                 morse = 0;
             }
 

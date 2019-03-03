@@ -3,4 +3,6 @@
 
 void game_init();
 
+void game_step(char c);
+
 #endif

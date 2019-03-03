@@ -101,7 +101,6 @@ uint32_t morse_word_space_duration(uint32_t wpm)
 void morse_put(uint32_t* morse, uint32_t symbol)
 {
     ASSERT(morse != NULL);
-    ASSERT(*morse < 700);
     ASSERT(symbol == MORSE_DOT || symbol == MORSE_DASH);
 
     *morse = symbol | (*morse << 2);
@@ -110,8 +109,6 @@ void morse_put(uint32_t* morse, uint32_t symbol)
 char morse_decode(uint32_t* morse)
 {
     ASSERT(morse != NULL);
-    ASSERT(*morse < 700);
-    ASSERT(*morse > 0);
 
     for (uint32_t c = 0; c < MORSE_ALPHABET_LEN; c++)
     {
