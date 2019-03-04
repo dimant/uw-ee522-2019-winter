@@ -264,7 +264,7 @@ void lcd_init()
         LCD_PIN_DB4,
         LCD_PIN_DB5,
         LCD_PIN_DB6,
-        LCD_PIN_DB6
+        LCD_PIN_DB7
     };
 
     for (uint32_t pin = 0; pin < 11; pin++)
