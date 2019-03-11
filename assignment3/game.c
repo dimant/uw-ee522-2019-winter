@@ -38,7 +38,7 @@ void game_print_score(uint32_t value)
     ASSERT(TRUE == label_printed);
 
     char* string = malloc(sizeof(char) * 9);
-    snprintf(string, 9, "%i", value);
+    snprintf(string, 9, "%02d", value);
 
     lcd_goto(1, 7);
     lcd_puts(string);

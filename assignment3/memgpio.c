@@ -11,8 +11,6 @@
 #include "type-macros.h"
 #include "delay.h"
 
-/*	cat /proc/iomem ouput:
-    00000000-00000000 : /soc/gpio@7e200000 */
 #define GPIO_BASE 0x3F200000
 #define GPIO_OFFSET_PTR(base, x) *(base + (x / sizeof(uint32_t)))
 
